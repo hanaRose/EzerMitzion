@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "employee-evaluation-client-side-solution",
+    "id": "de8842e3-8369-4bac-b190-93fd637e7793",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "webApiPermissionRequests": [
+      { "resource": "Microsoft Graph", "scope": "User.ReadBasic.All" },
+      { "resource": "Microsoft Graph", "scope": "Group.Read.All" },
+      { "resource": "Microsoft Graph", "scope": "Directory.Read.All" }
+    ],
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "EmployeeEvaluation description"
+      },
+      "longDescription": {
+        "default": "EmployeeEvaluation description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "employee-evaluation Feature",
+        "description": "The feature that activates elements of the employee-evaluation solution.",
+        "id": "fc87bfc0-1db1-4fc9-ae4e-bd5a08b7449d",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/employee-evaluation.sppkg"
+  }
+}
