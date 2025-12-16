@@ -32,3 +32,8 @@
     }
   }
 }
+
+:global(.ms-TagItem) {
+  border-radius: 16px;
+  padding: 4px 12px;
+}
