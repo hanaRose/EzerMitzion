@@ -4,9 +4,10 @@ import * as React from 'react';
 import {
   Stack, Label, Dropdown, IDropdownOption, PrimaryButton, MessageBar, MessageBarType, Checkbox, TextField
 } from '@fluentui/react';
-import { PeoplePicker, PrincipalType } from '@pnp/spfx-controls-react/lib/PeoplePicker';
-import type { IPeoplePickerContext } from '@pnp/spfx-controls-react/lib/PeoplePicker';
 import { IEmployeeEvaluationProps, IGroup, IUser } from './IEmployeeEvaluationProps';
+import Header from './Header';
+import EvaluationList from './EvaluationList';
+import Footer from './Footer';
 
 // PnP module augmentations
 import '@pnp/sp/webs';
@@ -53,9 +54,6 @@ const WORK_TYPE_OPTIONS: IDropdownOption[] = [
   { key: 'שעתי', text: 'שעתי' },
   { key: 'מנהל', text: 'מנהל' }
 ];
-
-const STATUS_OPTIONS: IDropdownOption[] = STATUS_CHOICES.map(s => ({ key: s, text: s }));
-
 
 // ===== Helpers: normalize + token =====
 const normalize = (s: string) =>
@@ -112,8 +110,7 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   const [userEmployeeName, setUserEmployeeName] = React.useState<Record<string, string>>({});
   const [userStatus, setUserStatus] = React.useState<Record<string, string>>({});
   // PeoplePicker selections for employee name and email
-  const [selectedEmployeeName, setSelectedEmployeeName] = React.useState<Record<string, { login?: string; displayName?: string } | null>>({});
-  const [selectedEmployeeEmail, setSelectedEmployeeEmail] = React.useState<Record<string, { login?: string; displayName?: string } | null>>({});
+  const [, _setSelectedEmployeeEmail] = React.useState<Record<string, { login?: string; displayName?: string } | null>>({});
     // בחירת עובדים בטבלה לשיוך מרוכז
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
   const [bulkWorkType, setBulkWorkType] = React.useState<string>('רגיל');
@@ -122,6 +119,13 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   const [departmentsData, setDepartmentsData] = React.useState<DepartmentItem[]>([]);
   const [userDepartment, setUserDepartment] = React.useState<Record<string, string>>({});
   const [userSubDepartment, setUserSubDepartment] = React.useState<Record<string, string>>({});
+  const [selectedDepartment, setSelectedDepartment] = React.useState<string | null>('');
+  const [selectedSubDepartment, setSelectedSubDepartment] = React.useState<string | null>(null);
+
+  // כל העובדים כפי שנטענו מ־adminEmployee – לפני סינון
+  const [allAdminUsers, setAllAdminUsers] = React.useState<IUser[]>([]);
+  // סוג עובד
+  const [userEmployeeType, setUserEmployeeType] = React.useState<Record<string, string>>({});
   // per-user selected managers (direct / indirect / operation)
   const [selectedManagers, setSelectedManagers] = React.useState<Record<string, {
     direct?: { login?: string; displayName?: string } | null;
@@ -129,7 +133,24 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
     operation?: { login?: string; displayName?: string } | null;
   }>>({});
 
-  const { sp, context } = props;
+  // Create dropdown options from departments data
+  const departmentOptions: IDropdownOption[] = React.useMemo(() => {
+    const uniqueDepts = [...new Set(departmentsData.map(d => d.department).filter(d => d))];
+    return uniqueDepts.map(d => ({ key: d, text: d }));
+  }, [departmentsData]);
+
+  const subDepartmentOptions: IDropdownOption[] = React.useMemo(() => {
+    if (selectedDepartment) {
+      const uniqueSubDepts = [...new Set(departmentsData
+        .filter(d => d.department === selectedDepartment)
+        .map(d => d.subDepartment)
+        .filter(d => d))];
+      return uniqueSubDepts.map(d => ({ key: d, text: d }));
+    }
+    return [];
+  }, [departmentsData, selectedDepartment]);
+
+  const { sp } = props;
   const [groups] = React.useState<IGroup[]>([]);
   const [selectedGroupIds] = React.useState<string[]>([]);
   const [selectedUsers, setSelectedUsers] = React.useState<IUser[]>([]);
@@ -150,22 +171,12 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
 
   const employeeNumberMapRef = React.useRef<Map<string, AdminEmployeeRow> | null>(null);
 
-  // track which users we've logged from render to avoid noisy repeat logs
-  const renderedLoggedUsersRef = React.useRef<Set<string>>(new Set());
-
 
   // שמות עמודות ה-User בפועל (אם קיימת התנגשות, נעבור לשמות גיבוי)
   const employeeUserFieldRef = React.useRef<string>('EmployeeUser');
   const managerUserFieldRef  = React.useRef<string>('DirectManager');
   const indirectManagerUserFieldRef = React.useRef<string>('IndirectManager');
   const operationManagerUserFieldRef = React.useRef<string>('OperationManager');
-
-  // PeoplePicker context
-  const peoplePickerContext: IPeoplePickerContext = {
-    absoluteUrl: context.pageContext.web.absoluteUrl,
-    spHttpClient: context.spHttpClient,
-    msGraphClientFactory: context.msGraphClientFactory
-  };
 
   const recomputeSelectedUsers = React.useCallback(() => {
     const byId = new Map<string, IUser>();
@@ -207,17 +218,6 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   }, [selectedUsers]);
 
   // --- יצירת אופציות למחלקות ---
-  const departmentOptions = React.useMemo((): IDropdownOption[] => {
-    const uniqueDepts = new Set<string>();
-    departmentsData.forEach(d => {
-      if (d.department) uniqueDepts.add(d.department);
-    });
-    return Array.from(uniqueDepts).map(dept => ({
-      key: dept,
-      text: dept
-    }));
-  }, [departmentsData]);
-
   React.useEffect(() => {
     (async () => {
       try {
@@ -246,39 +246,6 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
       }
     })();
   }, [sp]);
-
-  // helper: per-row manager change handler (PeoplePicker returns an array)
-  const onRowManagerChange = (userId: string, role: 'direct' | 'indirect' | 'operation') => (items: any[]) => {
-    const p = (items && items[0]) || null;
-    const login = p?.secondaryText || p?.loginName || p?.id || '';
-    const displayName = p?.text || p?.secondaryText || '';
-    setSelectedManagers(prev => ({
-      ...prev,
-      [userId]: {
-        ...(prev[userId] || {}),
-        [role]: p ? { login, displayName } : null
-      }
-    }));
-  };
-
-  const onRowEmployeeDataChange = (userId: string, field: 'name' | 'email') => (items: any[]) => {
-    const p = (items && items[0]) || null;
-    const login = p?.secondaryText || p?.loginName || p?.id || '';
-    const displayName = p?.text || p?.secondaryText || '';
-    
-    if (field === 'name') {
-      setSelectedEmployeeName(prev => ({
-        ...prev,
-        [userId]: p ? { login, displayName } : null
-      }));
-    } else {
-      setSelectedEmployeeEmail(prev => ({
-        ...prev,
-        [userId]: p ? { login, displayName } : null
-      }));
-    }
-  };
-
 
   // --- טעינת מחלקות ותת-מחלקות ---
   React.useEffect(() => {
@@ -376,12 +343,16 @@ React.useEffect(() => {
         const display = it.employee?.Title || it.Title || email || sam;
         const idKey = email || it.Title || sam;
 
-        users.push({
+        const user: IUser & { __department?: string; __subDepartment?: string } = {
           id: String(idKey),
           displayName: display,
           userPrincipalName: email.toLowerCase(),
-          secondaryText: email
-        });
+          secondaryText: email,
+          __department: it.department || '',
+          __subDepartment: it.subDepartment || ''
+        };
+
+        users.push(user);
 
         // Populate state maps with existing values from the list
         const userId = String(idKey);
@@ -415,11 +386,12 @@ React.useEffect(() => {
       // conspicuous checkpoint so user can find this load in console
       console.log(`>>> EZER-EVAL-CHECKPOINT: adminEmployee rows loaded: ${map.size} ID=${instanceLogId.current}`);
 
-      // במקום בחירת ידנית — נטען את כל העובדים מהרשימה כאילו נבחרו
-      setManualUsers(users);
-      // conspicuous log so user can spot when manual users are set
+      // שומרים את כל העובדים כפי שנטענו מהרשימה, הסינון יתבצע לפי מחלקה/תת-מחלקה
+      setAllAdminUsers(users);
+
+      // conspicuous log so user can spot when users are loaded
       try {
-        console.error(`*** EZER-EVAL-CHECKPOINT ERROR: setManualUsers called with ${users.length} users ID=${instanceLogId.current}`);
+        console.error(`*** EZER-EVAL-CHECKPOINT ERROR: adminEmployee users loaded: ${users.length} users ID=${instanceLogId.current}`);
       } catch {}
 
       // log selected managers map size and a sample of keys
@@ -429,6 +401,7 @@ React.useEffect(() => {
 
       // Set all the state with loaded values
       setUserWorkType(workTypeMap);
+      setUserEmployeeType(workTypeMap); // סוג עובד גם כן
       setUserEmployeeName(employeeNameMap);
       setUserStatus(statusMap);
       setUserDepartment(departmentMap);
@@ -440,6 +413,37 @@ React.useEffect(() => {
     }
   })();
 }, [sp]);
+
+  // --- סינון עובדים לפי מחלקה ותת-מחלקה (בהתאמה סלחנית לטקסט) ---
+  React.useEffect(() => {
+    // אם לא נבחרה תת-מחלקה – לא מציגים אף עובד
+    if (!selectedSubDepartment) {
+      setManualUsers([]);
+      return;
+    }
+
+    const selectedDeptNorm = selectedDepartment ? normalize(String(selectedDepartment)) : '';
+    const selectedSubDeptNorm = normalize(String(selectedSubDepartment));
+
+    const filtered = allAdminUsers.filter(u => {
+      const anyUser: any = u as any;
+      const dept = anyUser.__department || readUserMap(userDepartment, u);
+      const subDept = anyUser.__subDepartment || readUserMap(userSubDepartment, u);
+
+      const deptNorm = normalize(dept || '');
+      const subDeptNorm = normalize(subDept || '');
+
+      // אם נבחרה מחלקה – נדרוש התאמה מנורמלת, אבל אם לעובד אין מחלקה בכלל לא נפסול אותו
+      if (selectedDeptNorm && dept && deptNorm !== selectedDeptNorm) {
+        return false;
+      }
+
+      // התאמה לפי תת-מחלקה מנורמלת
+      return subDeptNorm === selectedSubDeptNorm;
+    });
+
+    setManualUsers(filtered);
+  }, [allAdminUsers, userDepartment, userSubDepartment, selectedDepartment, selectedSubDepartment]);
 
   // --- טעינת “נשלח” מהרשימה (כולל רבעון/שנה) ---
   React.useEffect(() => {
@@ -1045,163 +1049,62 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
     setRowSelection(next);
   };
 
-
-  const renderUserBadge = (u: IUser) => {
-    // log per-user manager data once to help debugging
+  // פונקציה לשמירת משתמש בודד ל-SharePoint
+  const onSaveUser = async (userId: string) => {
     try {
-      if (u?.id && !renderedLoggedUsersRef.current.has(u.id)) {
-        console.error(`*** EZER-EVAL-CHECKPOINT ERROR: renderUserBadge for user ${u.id} ID=${instanceLogId.current}`, {
-          selectedManagers: selectedManagers?.[u.id] || null,
-          userWorkType: userWorkType?.[u.id] || null,
-          userDepartment: userDepartment?.[u.id] || null
-        });
-        renderedLoggedUsersRef.current.add(u.id);
+      const user = selectedUsers.find(u => u.id === userId);
+      if (!user) return;
+
+      const list = sp.web.lists.getByTitle('adminEmployee');
+      
+      // מצא את הפריט ברשימה לפי email
+      const email = user.userPrincipalName || user.secondaryText;
+      const items = await list.items.filter(`Title eq '${email}'`).top(1)();
+      
+      if (items.length === 0) {
+        console.warn(`No item found for user ${email}`);
+        return;
       }
-    } catch {}
-    const already =
-      sentTokens.has(makeKey(u.userPrincipalName || '', quarterName, quarterYear)) ||
-      sentTokens.has(makeKey(u.displayName || '',       quarterName, quarterYear));
 
-    const currentWorkType = readUserMap(userWorkType, u) || '';
-    const currentDepartment = readUserMap(userDepartment, u) || '';
-    const currentSubDepartment = readUserMap(userSubDepartment, u) || '';
-    const currentStatus = readUserMap(userStatus, u) || 'ממתין לשליחה';
+      const itemId = items[0].Id;
+      const managers = selectedManagers[userId] || {};
 
-    const getUserSubDeptOptions = (): IDropdownOption[] => {
-      if (!currentDepartment) return [];
-      const uniqueSubDepts = new Set<string>();
-      departmentsData
-        .filter(d => d.department === currentDepartment)
-        .forEach(d => { if (d.subDepartment) uniqueSubDepts.add(d.subDepartment); });
-      return Array.from(uniqueSubDepts).map(s => ({ key: s, text: s }));
-    };
-    const userSubDeptOptions = getUserSubDeptOptions();
+      // עדכון הפריט
+      await list.items.getById(itemId).update({
+        employeeType: userEmployeeType[userId] || '',
+        department: userDepartment[userId] || '',
+        subDepartment: userSubDepartment[userId] || '',
+      });
 
-    return (
-      <div
-        key={u.id}
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '40px 70px 70px 70px 70px 70px 70px 70px 70px 70px',
-          gap: 12,
-          alignItems: 'center',
-          padding: '2px 5px',
-          borderBottom: '1px solid #e5e7eb',
-          background: already ? '#ffeef4' : 'transparent'
-        }}
-      >
-        {/* select checkbox */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Checkbox
-            checked={!!rowSelection[u.id]}
-            onChange={(_, checked) => setRowSelection(prev => ({ ...prev, [u.id]: !!checked }))}
-          />
-        </div>
+      // עדכון מנהלים (דורש ensureUser)
+      if (managers.direct?.login) {
+        try {
+          const directUser = await sp.web.ensureUser(managers.direct.login);
+          await list.items.getById(itemId).update({
+            directManagerId: directUser.Id
+          });
+        } catch (e) {
+          console.warn('Failed to set direct manager', e);
+        }
+      }
 
+      if (managers.indirect?.login) {
+        try {
+          const indirectUser = await sp.web.ensureUser(managers.indirect.login);
+          await list.items.getById(itemId).update({
+            indirectManagerId: indirectUser.Id
+          });
+        } catch (e) {
+          console.warn('Failed to set indirect manager', e);
+        }
+      }
 
-        {/* email - PeoplePicker */}
-        <div>
-          <PeoplePicker
-            context={peoplePickerContext}
-            personSelectionLimit={1}
-            principalTypes={[PrincipalType.User]}
-            ensureUser={true}
-            onChange={onRowEmployeeDataChange(u.id, 'email')}
-            showHiddenInUI={false}
-          />
-        </div>
-
-        {/* work type */}
-        <div>
-          <Dropdown
-            options={WORK_TYPE_OPTIONS}
-            selectedKey={currentWorkType ? currentWorkType : undefined}
-            onChange={(_, opt) => {
-              if (opt) setUserWorkType(prev => ({ ...prev, [u.id]: String(opt.key) }));
-            }}
-            styles={{ root: { minWidth: 120 } }}
-          />
-        </div>
-
-        {/* employeeType removed (managed via WorkType) */}
-
-        {/* department */}
-        <div>
-          <Dropdown
-            options={departmentOptions}
-            placeholder="בחר מחלקה"
-            selectedKey={currentDepartment || undefined}
-            onChange={(_, opt) => {
-              setUserDepartment(prev => ({ ...prev, [u.id]: (opt?.key as string) || '' }));
-              setUserSubDepartment(prev => ({ ...prev, [u.id]: '' }));
-            }}
-            styles={{ root: { minWidth: 140 } }}
-          />
-        </div>
-
-        {/* sub-department */}
-        <div>
-          <Dropdown
-            options={userSubDeptOptions}
-            placeholder={currentDepartment ? 'בחר תת-מחלקה' : 'בחר מחלקה תחילה'}
-            selectedKey={currentSubDepartment || undefined}
-            disabled={!currentDepartment}
-            onChange={(_, opt) => setUserSubDepartment(prev => ({ ...prev, [u.id]: (opt?.key as string) || '' }))}
-            styles={{ root: { minWidth: 140 } }}
-          />
-        </div>
-
-        {/* status */}
-        <div>
-          <Dropdown
-            options={STATUS_OPTIONS}
-            placeholder="בחר סטטוס"
-            selectedKey={currentStatus || undefined}
-            onChange={(_, opt) => setUserStatus(prev => ({ ...prev, [u.id]: (opt?.key as string) || '' }))}
-            styles={{ root: { minWidth: 150 } }}
-          />
-        </div>
-
-        {/* direct manager */}
-        <div>
-          <PeoplePicker
-            context={peoplePickerContext}
-            personSelectionLimit={1}
-            principalTypes={[PrincipalType.User]}
-            ensureUser={true}
-            defaultSelectedUsers={selectedManagers?.[u.id]?.direct?.login ? [selectedManagers[u.id].direct!.login!] : []}
-            onChange={onRowManagerChange(u.id, 'direct')}
-            showHiddenInUI={false}
-          />
-        </div>
-
-        {/* indirect manager */}
-        <div>
-          <PeoplePicker
-            context={peoplePickerContext}
-            personSelectionLimit={1}
-            principalTypes={[PrincipalType.User]}
-            ensureUser={true}
-            defaultSelectedUsers={selectedManagers?.[u.id]?.indirect?.login ? [selectedManagers[u.id].indirect!.login!] : []}
-            onChange={onRowManagerChange(u.id, 'indirect')}
-            showHiddenInUI={false}
-          />
-        </div>
-
-        {/* operation manager */}
-        <div>
-          <PeoplePicker
-            context={peoplePickerContext}
-            personSelectionLimit={1}
-            principalTypes={[PrincipalType.User]}
-            ensureUser={true}
-            defaultSelectedUsers={selectedManagers?.[u.id]?.operation?.login ? [selectedManagers[u.id].operation!.login!] : []}
-            onChange={onRowManagerChange(u.id, 'operation')}
-            showHiddenInUI={false}
-          />
-        </div>
-      </div>
-    );
+      console.log(`✅ Saved user ${userId} to SharePoint`);
+      setMsg({ type: MessageBarType.success, text: `נשמר בהצלחה: ${user.displayName}` });
+    } catch (e) {
+      console.error('Failed to save user', e);
+      setMsg({ type: MessageBarType.error, text: 'שגיאה בשמירת המשתמש' });
+    }
   };
 
   return (
@@ -1212,7 +1115,8 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
         </MessageBar>
       )}
 
-      {}
+      <Header title="Employee Evaluation" subtitle="Manage employee evaluations easily" />
+
       <Stack horizontal tokens={{ childrenGap: 12 }} wrap>
         <Stack style={{ minWidth: 140 }}>
           <Label>שנת הרבעון</Label>
@@ -1235,7 +1139,39 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
       <Stack tokens={{ childrenGap: 8 }}>
         <Label>רשימת עובדים מהמערכת:</Label>
-        <div>כל העובדים מהרשימה נטענים אוטומטית. ניתן לערוך את כל השדות בטבלה למטה.</div>
+        <div>ראשית בחרי מחלקה ותת-מחלקה. רק לאחר בחירת תת-מחלקה יוצגו העובדים המתאימים.</div>
+
+        {/* פילטר מחלקה ותת-מחלקה */}
+        <Stack horizontal tokens={{ childrenGap: 12 }} wrap>
+          <Stack style={{ minWidth: 180 }}>
+            <Label>מחלקה</Label>
+            <Dropdown
+              placeholder="בחרי מחלקה"
+              options={departmentOptions}
+              selectedKey={selectedDepartment || undefined}
+              onChange={(_, opt) => {
+                const nextDept = (opt?.key as string) || null;
+                setSelectedDepartment(nextDept);
+                // איפוס תת-מחלקה בעת שינוי מחלקה
+                setSelectedSubDepartment(null);
+              }}
+            />
+          </Stack>
+
+          <Stack style={{ minWidth: 220 }}>
+            <Label>תת-מחלקה</Label>
+            <Dropdown
+              placeholder="בחרי תת-מחלקה"
+              options={subDepartmentOptions}
+              disabled={!selectedDepartment}
+              selectedKey={selectedSubDepartment || undefined}
+              onChange={(_, opt) => {
+                const nextSubDept = (opt?.key as string) || null;
+                setSelectedSubDepartment(nextSubDept);
+              }}
+            />
+          </Stack>
+        </Stack>
 
         {selectedUsers.length > 0 && (
           <Stack tokens={{ childrenGap: 6 }}>
@@ -1278,46 +1214,30 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
               </Stack>
             </Stack>
 
-            {/* טבלה עם גלילה */}
-            <div style={{ maxHeight: 400, overflowY: 'auto', border: '1px solid #e5e7eb', borderRadius: 8, marginTop: 8 }}>
-              {/* header row */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '40px 200px 180px 120px 160px 140px 150px 220px 220px 220px',
-                  gap: 12,
-                  padding: '8px 12px',
-                  borderBottom: '1px solid #e5e7eb',
-                  background: '#f5f7fa',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  alignItems: 'center'
-                }}
-              >
-                <div />
-                <div>שם עובד</div>
-                <div>סוג עובד</div>
-                <div>מחלקה</div>
-                <div>תת-מחלקה</div>
-                <div>סטטוס</div>
-                <div>מנהל ישיר</div>
-                <div>מנהל עקיף</div>
-                <div>מנהל תפעול</div>
-              </div>
-
-              {/* rows */}
-              {selectedUsers.map(u => (
-                <React.Fragment key={u.id}>
-                  {renderUserBadge(u)}
-                </React.Fragment>
-              ))}
-            </div>
+            <EvaluationList
+              selectedUsers={selectedUsers}
+              onToggleSelectAllRows={onToggleSelectAllRows}
+              rowSelection={rowSelection}
+              setRowSelection={setRowSelection}
+              userEmployeeType={userEmployeeType}
+              setUserEmployeeType={setUserEmployeeType}
+              userDepartment={userDepartment}
+              setUserDepartment={setUserDepartment}
+              userSubDepartment={userSubDepartment}
+              setUserSubDepartment={setUserSubDepartment}
+              selectedManagers={selectedManagers}
+              setSelectedManagers={setSelectedManagers}
+              context={props.context}
+              departmentOptions={departmentOptions}
+              subDepartmentOptions={subDepartmentOptions}
+              onSaveUser={onSaveUser}
+            />
           </Stack>
         )}
 
       </Stack>
 
-      <PrimaryButton text={busy ? 'מעדכן...' : 'שמירה ועדכון רשומות עובדים'} onClick={onSubmit} disabled={busy} />
+      <Footer onSubmit={onSubmit} busy={busy} />
     </Stack>
   );
 };

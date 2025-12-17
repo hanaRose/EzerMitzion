@@ -14,6 +14,11 @@ export type IUser = {
   displayName: string;
   userPrincipalName: string;
   secondaryText: string;
+  employeeType?: string;      // סוג עובד
+  department?: string;        // מחלקה
+  subDepartment?: string;     // תת-מחלקה
+  directManager?: string;     // מנהל ישיר
+  indirectManager?: string;   // מנהל עקיף
 };
 
 export type IGroup = {
