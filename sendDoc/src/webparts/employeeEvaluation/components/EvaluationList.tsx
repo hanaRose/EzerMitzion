@@ -35,6 +35,9 @@ interface IEvaluationListProps {
   departmentOptions: IDropdownOption[];
   subDepartmentOptions: IDropdownOption[];
   onSaveUser: (userId: string) => void;
+  userActive: Record<string, boolean>;
+  setUserActive: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+
 }
 
 interface IEditingState {
@@ -64,6 +67,8 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
   departmentOptions,
   subDepartmentOptions,
   onSaveUser,
+  userActive,
+  setUserActive,
 }) => {
   const [editingIds, setEditingIds] = React.useState<IEditingState>({});
 
@@ -94,7 +99,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: '40px 1fr 1fr 1fr 1fr 1fr 1fr 40px 40px',
+              gridTemplateColumns: '40px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 80px 40px 40px',
               gap: 12,
               alignItems: 'center',
               padding: '8px 5px',
@@ -110,6 +115,8 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
             <Label style={{ fontWeight: 600 }}>תת-מחלקה</Label>
             <Label style={{ fontWeight: 600 }}>מנהל ישיר</Label>
             <Label style={{ fontWeight: 600 }}>מנהל עקיף</Label>
+            <Label style={{ fontWeight: 600 }}>מנהל מקצועי</Label>
+            <Label style={{ fontWeight: 600 }}>פעיל</Label>
             <div></div>
             <div></div>
           </div>
@@ -127,7 +134,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
                 key={u.id}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '40px 1fr 1fr 1fr 1fr 1fr 1fr 40px 40px',
+                  gridTemplateColumns: '40px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 80px 40px 40px',
                   gap: 12,
                   alignItems: 'center',
                   padding: '8px 5px',
@@ -249,7 +256,52 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
                   </div>
                 ) : (
                   <Label>{managers.indirect?.displayName || '-'}</Label>
+                )
+                }
+
+
+                {/* מנהל מקצועי */}
+                {isEditing ? (
+                  <div style={{ minWidth: 150 }}>
+                    <PeoplePicker
+                      context={context as any}
+                      webAbsoluteUrl={context.pageContext.web.absoluteUrl}
+                      personSelectionLimit={1}
+                      showtooltip={true}
+                      required={false}
+                      principalTypes={[PrincipalType.User]}
+                      ensureUser={true}
+                      resolveDelay={300}
+                      defaultSelectedUsers={managers.operation?.login ? [managers.operation.login] : []}
+                      onChange={(items) => {
+                        const person = items && items.length > 0 ? items[0] : null;
+                        setSelectedManagers((prev) => ({
+                          ...prev,
+                          [u.id]: {
+                            ...prev[u.id],
+                            operation: person ? { login: person.secondaryText, displayName: person.text } : null,
+                          },
+                        }));
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Label>{managers.operation?.displayName || '-'}</Label>
                 )}
+
+                {/* פעיל */}
+                {isEditing ? (
+                  <Checkbox
+                    checked={!!userActive[u.id]}
+                    onChange={(_, checked) =>
+                      setUserActive((prev) => ({ ...prev, [u.id]: !!checked }))
+                    }
+                  />
+                ) : (
+                  <Checkbox checked={!!userActive[u.id]} disabled />
+                )}
+
+
                 
                 <IconButton
                   iconProps={{ iconName: isEditing ? 'Cancel' : 'Edit' }}
