@@ -327,13 +327,17 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   // --- קבוצות מה-Graph ---
 React.useEffect(() => {
   (async () => {
+          console.log("🤡🤡");
+
     try {
+      console.log("🤡🤡🤡1");
       // משתמשים ברשימה החדשה לפי שם – adminEmployee
-      const dirList = sp.web.lists.getByTitle('adminEmployee');
+      const dirList = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
 
       // בחר שדות רלוונטיים כולל user fields
       const items: any[] = await dirList.items
         .select(
+          'Id',
          'Title',
           'employeeType',
           'WorkType',
@@ -354,6 +358,10 @@ React.useEffect(() => {
         .expand('employee', 'directManager', 'indirectManager', 'operationManager')
         .top(5000)();
 
+        console.log("2🤡 items ", items);
+
+
+
       const map = new Map<string, AdminEmployeeRow>();
       const users: IUser[] = [];
 
@@ -365,16 +373,17 @@ React.useEffect(() => {
       const subDepartmentMap: Record<string, string> = {};
 
       const activeMap: Record<string, boolean> = {};
+console.log("13🤡");
       const managersMap: Record<string, {
         direct?: { login?: string; displayName?: string } | null;
         indirect?: { login?: string; displayName?: string } | null;
         operation?: { login?: string; displayName?: string } | null;
       }> = {};
-
+console.log("14🤡");
       for (const it of items) {
         const sam = (it.Title || '').toLowerCase().trim();
-        if (!sam) continue;
-
+        //if (!sam) continue;
+        console.log("sam🤡");
         map.set(sam, {
             employeeType: it.employeeType || '',
             department: it.department || '',
@@ -395,13 +404,14 @@ React.useEffect(() => {
         const display = it.employee?.Title || it.Title || email || sam;
         const idKey = email || it.Title || sam;
 
-        const user: IUser & { __department?: string; __subDepartment?: string } = {
+        const user: IUser & { __itemId?: number; __department?: string; __subDepartment?: string } = {
           id: String(idKey),
           displayName: display,
           userPrincipalName: email.toLowerCase(),
           secondaryText: email,
           __department: it.department || '',
-          __subDepartment: it.subDepartment || ''
+          __subDepartment: it.subDepartment || '', 
+          __itemId: it.Id,  
         };
 
         users.push(user);
@@ -433,7 +443,7 @@ React.useEffect(() => {
           } : null
         };
       }
-
+console.log("15🤡");
       console.log('Loaded adminEmployee directory rows:', map.size);
       employeeNumberMapRef.current = map;
 
@@ -441,6 +451,8 @@ React.useEffect(() => {
       console.log(`>>> EZER-EVAL-CHECKPOINT: adminEmployee rows loaded: ${map.size} ID=${instanceLogId.current}`);
 
       // שומרים את כל העובדים כפי שנטענו מהרשימה, הסינון יתבצע לפי מחלקה/תת-מחלקה
+
+      console.log("🤡!!users ", users);
       setAllAdminUsers(users);
 
       // conspicuous log so user can spot when users are loaded
@@ -475,16 +487,55 @@ React.useEffect(() => {
   // אם לא נבחרה תת-מחלקה – לא מציגים אף עובד 
   if (!selectedSubDepartment) { setManualUsers([]); return; }
    const selectedDeptNorm = selectedDepartment ? normalize(String(selectedDepartment)) : ''; 
+   
    const selectedSubDeptNorm = normalize(String(selectedSubDepartment)); 
+   console.log("allAdminUsers ", allAdminUsers);
    const filtered = allAdminUsers.filter(u => { const anyUser: any = u as any;
+     console.log("🤡1");
      const dept = anyUser.__department || readUserMap(userDepartment, u); 
+     console.log("🤡12");
      const subDept = anyUser.__subDepartment || readUserMap(userSubDepartment, u); 
+     console.log("🤡13");
      const deptNorm = normalize(dept || ''); 
+     console.log("🤡14");
      const subDeptNorm = normalize(subDept || '');
+console.log("🤡15");
       // אם נבחרה מחלקה – נדרוש התאמה מנורמלת, אבל אם לעובד אין מחלקה בכלל לא נפסול אותו 
       if (selectedDeptNorm && dept && deptNorm !== selectedDeptNorm) { return false; }
        // התאמה לפי תת-מחלקה מנורמלת 
        return subDeptNorm === selectedSubDeptNorm; }); 
+       console.log("allAdminUsers🤡");
+       console.log('🧪 FILTER INPUT', {
+  selectedDepartment,
+  selectedSubDepartment,
+  allAdminUsersCount: allAdminUsers.length
+});
+
+console.log('🧪 FILTER SAMPLE USERS', allAdminUsers.slice(0, 8).map(u => {
+  const anyU: any = u;
+  const dept = anyU.__department || '';
+  const sub = anyU.__subDepartment || '';
+  return {
+    id: u.id,
+    name: u.displayName,
+    upn: u.userPrincipalName,
+    dept,
+    sub,
+    deptNorm: normalize(dept),
+    subNorm: normalize(sub)
+  };
+}));
+
+console.log('🧪 FILTER RESULT', {
+  filteredCount: filtered.length,
+  filteredSample: filtered.slice(0, 10).map(u => ({
+    id: u.id,
+    name: u.displayName,
+    dept: (u as any).__department,
+    sub: (u as any).__subDepartment
+  }))
+});
+
        setManualUsers(filtered);
        }, [allAdminUsers, userDepartment, userSubDepartment, selectedDepartment, selectedSubDepartment]);
 
@@ -493,7 +544,7 @@ React.useEffect(() => {
   React.useEffect(() => {
     (async () => {
       try {
-        const list = sp.web.lists.getByTitle(LIST_TITLE);
+        const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
         const items = await list.items
           .select('Id','Title','EmployeeName','QuarterName','QuarterYear')
           .top(5000)();
@@ -568,7 +619,7 @@ const ensureUserField = async (
       // בדיקה אם הרשימה קיימת, ואם לא – יצירה
       let listExists = true;
       try {
-        await sp.web.lists.getByTitle(LIST_TITLE)();
+        await sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75')();
       } catch {
         listExists = false;
       }
@@ -577,7 +628,7 @@ const ensureUserField = async (
         await sp.web.lists.add(LIST_TITLE, 'Workers created by SPFx', 100, true);
       }
 
-      const list = sp.web.lists.getByTitle(LIST_TITLE);
+      const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
 
       // --- עזר קטן: הבטחת שדה לפי שם (InternalName או Title) ---
 
@@ -786,17 +837,19 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
   // --- הוספת/עדכון פריט (כפילות נחסמת לפי רבעון/שנה נוכחיים) ---
   const addWorkerItemIfMissing = async (user: IUser, source: string, groupId?: string) => {
-    const list = sp.web.lists.getByTitle(LIST_TITLE);
+    const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
+
+    const spItemId = (user as any).__itemId as number | undefined;
 
     const upnRaw = (user.userPrincipalName || user.displayName || '');
     const upnEsc = upnRaw.replace(/'/g, "''");
 
     const qnEsc = quarterName.replace(/'/g, "''");
     const qyNum = parseInt(quarterYear, 10) || new Date().getFullYear();
-
+    
     // בדיקת כפילות *באותו* רבעון/שנה
     const filter = `Title eq '${upnEsc}' and QuarterName eq '${qnEsc}' and QuarterYear eq ${qyNum}`;
-    const existing = await list.items.filter(filter).top(1)();
+    const existing = spItemId ? [] : await list.items.filter(filter).top(1)();
 
     const meta = await getUserMeta(user);
     const groupNameString = meta.groupNamesForSelected.join(', ');
@@ -924,7 +977,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
     }
 
     console.debug('Adding item with all fields:', baseFields);
-
+    /*
     if (existing.length === 0) {
       console.debug('Creating new item in list', LIST_TITLE);
 
@@ -972,10 +1025,49 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       console.debug('Updating existing item with fields:', updateFields);
       await list.items.getById(id).update(updateFields);
       console.debug('Successfully updated item');
+    }*/
+   // אם יש לנו ID של פריט קיים — מעדכנים אותו ישירות וזהו
+    if (spItemId) {
+      console.debug('Updating by __itemId:', spItemId);
+      await list.items.getById(spItemId).update({
+        ...baseFields,
+        // אפשר גם לשים רק updateFields אם את לא רוצה לעדכן Quarter/Title וכו'
+        // אבל baseFields כולל גם user fields Id שכבר חישבת
+      });
+      console.debug('Successfully updated item by __itemId');
+      return;
     }
+
+    // אין __itemId => חיפוש לפי פילטר, אם לא נמצא => יצירה
+    if (existing.length === 0) {
+      console.log("creating ");
+      console.debug('Creating new item (not found by filter).', { filter });
+      const addResult = await list.items.add(baseFields);
+      const newItemId = addResult.data?.Id || addResult.Id;
+      console.debug('Item created successfully with ID:', newItemId);
+    } else {
+      console.log("updating  ");
+       const updateFields: any = {
+        
+        EmployeeName: employeeName,
+        employeeType: workType,
+        WorkType: workType,
+        Status: statusValue,
+        department: userDept || meta.department || existing[0].department || '',
+        subDepartment: userSubDept || meta.subDepartment || existing[0].subDepartment || ''
+      };
+      const id = existing[0].Id;
+      console.debug('Item found by filter, updating. ID:', id);
+      await list.items.getById(id).update(updateFields);
+      console.debug('Successfully updated item');
+    }
+
   };
 
   const markStartEvalProcessIfActive = async (user: IUser) => {
+    onSaveUser1(String(user.id));
+/*
+    console.log(" in markStartEvalProcessIfActive");
   const emailRaw = (user.userPrincipalName || user.secondaryText || '').toLowerCase().trim();
   if (!emailRaw) return;
 
@@ -999,20 +1091,26 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
   if (items.length === 0) return;
 
   // "אם ורק אם" גם לפי הערך שבשרת:
+  console.log("items ", items);
+  console.log("items[0][ACTIVE_FIELD] ", items[0][ACTIVE_FIELD]); 
   const activeServer = items[0][ACTIVE_FIELD] === true;
   if (!activeServer) return;
-
+  console.log("🔮🔮🔮🔮🔮🔮🔮");
   await list.items.getById(items[0].Id).update({
     [START_EVAL_FIELD]: true
   });
-};
+
+*/};
 
 
   // --- מעטפת שממשיכה גם כשיש שגיאה למשתמש בודד ---
   const tryAddWorker = async (user: IUser, source: string, groupId?: string) => {
     try {
+      console.log("1 ");
       await addWorkerItemIfMissing(user, source, groupId);
+      console.log("2 ");
       await markStartEvalProcessIfActive(user);
+      console.log("3 ");
 
       return { ok: true as const, user };
     } catch (e: any) {
@@ -1141,13 +1239,79 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
     setRowSelection(next);
   };
 
+   const onSaveUser1 = async (userId: string) => {
+    try {
+      const user = selectedUsers.find(u => u.id === userId);
+      if (!user) return;
+
+      const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
+      
+      // מצא את הפריט ברשימה לפי email
+      const email = user.userPrincipalName || user.secondaryText;
+      const items = await list.items.filter(`Title eq '${email}'`).top(1)();
+      
+      if (items.length === 0) {
+        console.warn(`No item found for user ${email}`);
+        return;
+      }
+
+      const itemId = items[0].Id;
+      const managers = selectedManagers[userId] || {};
+
+      // עדכון הפריט
+      await list.items.getById(itemId).update({
+        [START_EVAL_FIELD] : true
+      });
+
+      // עדכון מנהלים (דורש ensureUser)
+      if (managers.direct?.login) {
+        try {
+          const directUser = await sp.web.ensureUser(managers.direct.login);
+          await list.items.getById(itemId).update({
+            directManagerId: directUser.Id
+          });
+        } catch (e) {
+          console.warn('Failed to set direct manager', e);
+        }
+      }
+
+      if (managers.indirect?.login) {
+        try {
+          const indirectUser = await sp.web.ensureUser(managers.indirect.login);
+          await list.items.getById(itemId).update({
+            indirectManagerId: indirectUser.Id
+          });
+        } catch (e) {
+          console.warn('Failed to set indirect manager', e);
+        }
+      }
+
+      if (managers.operation?.login) {
+        try {
+          const opUser = await sp.web.ensureUser(managers.operation.login);
+          await list.items.getById(itemId).update({
+            operationManagerId: opUser.Id
+          });
+        } catch (e) {
+          console.warn('Failed to set operation manager', e);
+        }
+      }
+
+
+      console.log(`✅ Saved user ${userId} to SharePoint`);
+      setMsg({ type: MessageBarType.success, text: `נשמר בהצלחה: ${user.displayName}` });
+    } catch (e) {
+      console.error('Failed to save user', e);
+      setMsg({ type: MessageBarType.error, text: 'שגיאה בשמירת המשתמש' });
+    }
+  };
   // פונקציה לשמירת משתמש בודד ל-SharePoint
   const onSaveUser = async (userId: string) => {
     try {
       const user = selectedUsers.find(u => u.id === userId);
       if (!user) return;
 
-      const list = sp.web.lists.getByTitle('adminEmployee');
+      const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
       
       // מצא את הפריט ברשימה לפי email
       const email = user.userPrincipalName || user.secondaryText;
@@ -1257,6 +1421,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
               onChange={(_, opt) => {
                 const nextDept = (opt?.key as string) || null;
                 setSelectedDepartment(nextDept);
+                console.log("setSelectedDepartment(nextDept) ",nextDept );
                 // איפוס תת-מחלקה בעת שינוי מחלקה
                 setSelectedSubDepartment(null);
               }}
