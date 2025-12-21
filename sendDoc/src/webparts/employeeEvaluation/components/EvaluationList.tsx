@@ -80,8 +80,6 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
   };
   return (
     <Stack tokens={{ childrenGap: 8 }}>
-      <Label>רשימת עובדים מהמערכת:</Label>
-      <div>כל העובדים מהרשימה נטענים אוטומטית. ניתן לערוך את כל השדות בטבלה למטה.</div>
 
       {selectedUsers.length > 0 && (
         <Stack tokens={{ childrenGap: 6 }}>
@@ -90,7 +88,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
           {/* בר עליון: בחר הכל + שיוך מרוכז */}
           <Stack tokens={{ childrenGap: 12 }}>
             <Checkbox
-              label="בחר / בטל בחירת כל העובדים בטבלה"
+              label="בחר.י / בטל.י בחירת כל העובדים בטבלה"
               onChange={onToggleSelectAllRows}
             />
           </Stack>

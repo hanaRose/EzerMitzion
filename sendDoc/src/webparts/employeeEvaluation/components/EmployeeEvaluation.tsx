@@ -2,7 +2,11 @@
 
 import * as React from 'react';
 import {
-  Stack, Label, Dropdown, IDropdownOption, PrimaryButton, MessageBar, MessageBarType, Checkbox, TextField
+  Stack, Label, Dropdown, IDropdownOption,
+   //PrimaryButton,
+    MessageBar, MessageBarType,
+    // Checkbox, 
+     TextField
 } from '@fluentui/react';
 
 
@@ -50,12 +54,12 @@ const STATUS_CHOICES = [
   'נדחה',
   'נשלח לתיקון'
 ];
-
+/*
 const WORK_TYPE_OPTIONS: IDropdownOption[] = [
   { key: 'רגיל', text: 'רגיל' },
   { key: 'שעתי', text: 'שעתי' },
   { key: 'מנהל', text: 'מנהל' }
-];
+];*/
 
 // ===== Helpers: normalize + token =====
 const normalize = (s: string) =>
@@ -98,6 +102,7 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   const [manualUsers, setManualUsers] = React.useState<IUser[]>([]);
 
   const ACTIVE_FIELD = 'active'; // internal name של עמודת כן/לא ב-adminEmployee
+  const START_EVAL_FIELD = 'startEvalProcess';
 
   
 
@@ -120,7 +125,7 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   const [, _setSelectedEmployeeEmail] = React.useState<Record<string, { login?: string; displayName?: string } | null>>({});
     // בחירת עובדים בטבלה לשיוך מרוכז
   const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
-  const [bulkWorkType, setBulkWorkType] = React.useState<string>('רגיל');
+  //const [bulkWorkType, setBulkWorkType] = React.useState<string>('רגיל');
 
   // מחלקות ותת-מחלקות
   const [departmentsData, setDepartmentsData] = React.useState<DepartmentItem[]>([]);
@@ -600,6 +605,15 @@ const ensureUserField = async (
         }
       };
 
+      const ensureBooleanField = async (nameOrTitle: string, description?: string) => {
+        try {
+          await list.fields.getByInternalNameOrTitle(nameOrTitle)();
+        } catch {
+          await list.fields.addBoolean(nameOrTitle, { Description: description || '' });
+        }
+      };
+
+
 
 
       await ensureChoiceField('WorkType', {
@@ -636,6 +650,8 @@ const ensureUserField = async (
       });
 
       await ensureNumberField('QuarterYear');
+      await ensureBooleanField(START_EVAL_FIELD, 'סימון שהתחיל תהליך הערכה לעובד');
+
 
       await ensureChoiceField('Status', {
         Choices: STATUS_CHOICES,
@@ -959,16 +975,53 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
     }
   };
 
+  const markStartEvalProcessIfActive = async (user: IUser) => {
+  const emailRaw = (user.userPrincipalName || user.secondaryText || '').toLowerCase().trim();
+  if (!emailRaw) return;
+
+  // האם המשתמש מסומן פעיל במצב אצלך (כולל שינוי מה-checkbox)
+  const keyById = String(user.id || '').toLowerCase();
+  const isActiveLocal =
+    (keyById && userActive[keyById] !== undefined ? userActive[keyById] : undefined) ??
+    userActive[emailRaw];
+
+  if (!isActiveLocal) return; // רק אם active=true
+
+  const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75'); // אותו דבר כמו אצלך ב-onSaveUser
+  const emailEsc = emailRaw.replace(/'/g, "''");
+
+  // מוצאים את הרשומה של העובד לפי Title = email (כמו שעשית ב-onSaveUser)
+  const items = await list.items
+    .select('Id', ACTIVE_FIELD)
+    .filter(`Title eq '${emailEsc}'`)
+    .top(1)();
+
+  if (items.length === 0) return;
+
+  // "אם ורק אם" גם לפי הערך שבשרת:
+  const activeServer = items[0][ACTIVE_FIELD] === true;
+  if (!activeServer) return;
+
+  await list.items.getById(items[0].Id).update({
+    [START_EVAL_FIELD]: true
+  });
+};
+
+
   // --- מעטפת שממשיכה גם כשיש שגיאה למשתמש בודד ---
   const tryAddWorker = async (user: IUser, source: string, groupId?: string) => {
     try {
       await addWorkerItemIfMissing(user, source, groupId);
+      await markStartEvalProcessIfActive(user);
+
       return { ok: true as const, user };
     } catch (e: any) {
       console.warn('Failed for user', user, e);
       return { ok: false as const, user, error: e };
     }
   };
+
+
 
   // --- שליחה ---
   const onSubmit = async () => {
@@ -1192,8 +1245,6 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       </Stack>
 
       <Stack tokens={{ childrenGap: 8 }}>
-        <Label>רשימת עובדים מהמערכת:</Label>
-        <div>ראשית בחרי מחלקה ותת-מחלקה. רק לאחר בחירת תת-מחלקה יוצגו העובדים המתאימים.</div>
 
         {/* פילטר מחלקה ותת-מחלקה */}
         <Stack horizontal tokens={{ childrenGap: 12 }} wrap>
@@ -1232,44 +1283,6 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
         {selectedUsers.length > 0 && (
           <Stack tokens={{ childrenGap: 6 }}>
-            <Label>סה"כ {selectedUsers.length} עובדים:</Label>
-
-            {/* בר עליון: בחר הכל + שיוך מרוכז */}
-            <Stack tokens={{ childrenGap: 12 }}>
-              <Checkbox
-                label="בחר / בטל בחירת כל העובדים בטבלה"
-                onChange={onToggleSelectAllRows}
-              />
-
-              {/* שיוך מרוכז - סוג עובד */}
-              <Stack horizontal tokens={{ childrenGap: 8 }} verticalAlign="end">
-                <Stack style={{ width: 180 }}>
-                  <Label>סוג עובד</Label>
-                  <Dropdown
-                    options={WORK_TYPE_OPTIONS}
-                    selectedKey={bulkWorkType}
-                    onChange={(_, opt) => {
-                      if (opt) setBulkWorkType(opt.key as string);
-                    }}
-                  />
-                </Stack>
-
-                <PrimaryButton
-                  text="שיוך סוג עובד לנבחרים"
-                  onClick={() => {
-                    setUserWorkType(prev => {
-                      const next = { ...prev };
-                      selectedUsers.forEach(u => {
-                        if (u.id && rowSelection[u.id]) {
-                          next[u.id] = bulkWorkType;
-                        }
-                      });
-                      return next;
-                    });
-                  }}
-                />
-              </Stack>
-            </Stack>
 
             <EvaluationList
               selectedUsers={selectedUsers}
