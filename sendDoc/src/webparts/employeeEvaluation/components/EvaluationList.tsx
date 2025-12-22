@@ -34,6 +34,7 @@ interface IEvaluationListProps {
   context: WebPartContext;
   departmentOptions: IDropdownOption[];
   subDepartmentOptions: IDropdownOption[];
+  getSubDepartmentOptions: (dept: string) => IDropdownOption[];
   onSaveUser: (userId: string) => void;
   userActive: Record<string, boolean>;
   setUserActive: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
@@ -66,6 +67,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
   context,
   departmentOptions,
   subDepartmentOptions,
+  getSubDepartmentOptions,
   onSaveUser,
   userActive,
   setUserActive,
@@ -125,6 +127,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
             const empType = userEmployeeType[u.id] || u.employeeType || '';
             const dept = userDepartment[u.id] || u.department || '';
             const subDept = userSubDepartment[u.id] || u.subDepartment || '';
+            const rowSubDeptOptions = getSubDepartmentOptions(dept);
             const managers = selectedManagers[u.id] || {};
             
             return (
@@ -174,6 +177,8 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
                     onChange={(_, option) => {
                       if (option) {
                         setUserDepartment((prev) => ({ ...prev, [u.id]: option.key as string }));
+                        setUserSubDepartment((prev) => ({ ...prev, [u.id]: '' }));
+
                       }
                     }}
                     styles={{ root: { minWidth: 120 } }}
@@ -186,7 +191,8 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
                 {isEditing ? (
                   <Dropdown
                     selectedKey={subDept}
-                    options={subDepartmentOptions}
+                    options={rowSubDeptOptions}
+                    disabled={!dept}
                     onChange={(_, option) => {
                       if (option) {
                         setUserSubDepartment((prev) => ({ ...prev, [u.id]: option.key as string }));

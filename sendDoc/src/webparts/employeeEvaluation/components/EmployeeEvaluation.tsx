@@ -11,7 +11,9 @@ import {
 
 
 
-import { IEmployeeEvaluationProps, IGroup, IUser } from './IEmployeeEvaluationProps';
+import { IEmployeeEvaluationProps,
+   //IGroup, 
+   IUser } from './IEmployeeEvaluationProps';
 import EvaluationList from './EvaluationList';
 import Footer from './Footer';
 
@@ -103,6 +105,8 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
 
   const ACTIVE_FIELD = 'active'; // internal name של עמודת כן/לא ב-adminEmployee
   const START_EVAL_FIELD = 'startEvalProcess';
+  const YEAR = 'year';
+  const Q = 'quarterly';
 
   
 
@@ -167,9 +171,21 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
     return [];
   }, [departmentsData, selectedDepartment]);
 
+  const getSubDepartmentOptions = React.useCallback((dept: string): IDropdownOption[] => {
+  if (!dept) return [];
+  const uniqueSubDepts = [...new Set(
+    departmentsData
+      .filter(d => d.department === dept)
+      .map(d => d.subDepartment)
+      .filter(Boolean)
+  )];
+  return uniqueSubDepts.map(sd => ({ key: sd, text: sd }));
+}, [departmentsData]);
+
+
   const { sp } = props;
-  const [groups] = React.useState<IGroup[]>([]);
-  const [selectedGroupIds] = React.useState<string[]>([]);
+  //const [groups] = React.useState<IGroup[]>([]);
+  //const [selectedGroupIds] = React.useState<string[]>([]);
   const [selectedUsers, setSelectedUsers] = React.useState<IUser[]>([]);
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<{ type: MessageBarType; text: string } | null>(null);
@@ -495,9 +511,12 @@ console.log("15🤡");
    console.log("allAdminUsers ", allAdminUsers);
    const filtered = allAdminUsers.filter(u => { const anyUser: any = u as any;
      console.log("🤡1");
-     const dept = anyUser.__department || readUserMap(userDepartment, u); 
+     //const dept = anyUser.__department || readUserMap(userDepartment, u); 
      console.log("🤡12");
-     const subDept = anyUser.__subDepartment || readUserMap(userSubDepartment, u); 
+     //const subDept = anyUser.__subDepartment || readUserMap(userSubDepartment, u);
+    const dept = anyUser.__department || readUserMap(userDepartment, u) || '';
+    const subDept = anyUser.__subDepartment || readUserMap(userSubDepartment, u) || '';
+ 
      console.log("🤡13");
      const deptNorm = normalize(dept || ''); 
      console.log("🤡14");
@@ -955,6 +974,8 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       subDepartment: selectedSubDepartment || userSubDept || meta.subDepartment || '',
       employeeId : user.employeeId,
     };
+    baseFields[START_EVAL_FIELD] = true;
+
 
     // הוסף User fields ל-baseFields (עם Id בסוף)
     if (employeeUserId) {
@@ -1128,55 +1149,41 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
       await ensureList();
 
+      // ✅ רק משתמשים שסומנו עם V
+      const selectedToSend = selectedUsers.filter(u => !!rowSelection[u.id]);
+
+      if (selectedToSend.length === 0) {
+        setMsg({ type: MessageBarType.error, text: 'לא נבחרו עובדים (סמני V ליד העובדים שברצונך לשלוח).' });
+        setBusy(false);
+        return;
+      }
+
       const actuallySent: IUser[] = [];
       const failures: { user: IUser; error: any }[] = [];
 
-      // 1) משתמשים נבחרים — מעדכן תמיד את כל הרשומות (יוצר חדשות או מעדכן קיימות)
-      const manualById = new Map<string, IUser>();
-      for (const u of manualUsers) {
-        if (u?.id) manualById.set(u.id, u);
+
+      // ✅ רק מי שסומן עם ה-V בטבלה
+
+      if (selectedToSend.length === 0) {
+        setMsg({ type: MessageBarType.warning, text: 'לא נבחרו עובדים לשליחה (סמני V ליד העובדים).' });
+        setBusy(false);
+        return;
       }
-      for (const u of Array.from(manualById.values())) {
+
+      for (const u of selectedToSend) {
         const r = await tryAddWorker(u, 'Selected', undefined);
         if (r.ok) actuallySent.push(u);
         else failures.push({ user: u, error: r.error });
       }
 
-      // 2) קבוצות (מסונן לפי sentTokens לרבעון/שנה הנוכחיים)
-      for (const gid of selectedGroupIds) {
-        const g = groups.find(x => x.id === gid);
-        const gName = g?.displayName ?? gid;
-          const members: IUser[] = groupUsersByGroup[gid] || [];
-          if (members.length === 0) {
-            continue; // אין עובדים בקבוצה הזו כרגע
-          }
-
-
-       
-        const membersToSend = true
-          ? members.filter(m => {
-              const k1 = makeKey(m.userPrincipalName || '', quarterName, quarterYear);
-              const k2 = makeKey(m.displayName || '',       quarterName, quarterYear);
-              return !(sentTokens.has(k1) || sentTokens.has(k2));
-            })
-          : members;
-
-        for (const u of membersToSend) {
-          const r = await tryAddWorker(u, `FromGroup:${gName}`, gid);
-          if (r.ok) actuallySent.push(u);
-          else failures.push({ user: u, error: r.error });
-        }
-
-        // await ensureGroupPreview(gid);
-      }
-
-      // עדכון sentTokens רק עבור מי שבאמת נשלח (ברבעון/שנה הנוכחיים)
+      // עדכון sentTokens רק עבור מי שבאמת טופל
       const newSent = new Set(sentTokens);
       for (const u of actuallySent) {
         if (u.userPrincipalName) newSent.add(makeKey(u.userPrincipalName, quarterName, quarterYear));
         if (u.displayName)       newSent.add(makeKey(u.displayName,       quarterName, quarterYear));
       }
       setSentTokens(newSent);
+
 
       // הודעת סיכום
       if (failures.length === 0) {
@@ -1213,7 +1220,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
    const onSaveUser1 = async (userId: string) => {
     try {
-      console.log("userId ", userId);
+
       const user = manualUsers.find(u => u.id === userId);
       if (!user) return;
 
@@ -1221,19 +1228,24 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       
       // מצא את הפריט ברשימה לפי email
       const email = user.userPrincipalName || user.secondaryText;
-      const items = await list.items.filter(`ID eq '${userId}'`).top(1)();
-      
+      const items = await list.items.filter(`employee/EMail eq '${userId}'`).top(1)();
+      console.log("items 🚝", items);
       if (items.length === 0) {
         console.warn(`No item found for user ${email}`);
         return;
       }
 
       const itemId = items[0].Id;
+      
       const managers = selectedManagers[userId] || {};
 
       // עדכון הפריט
+      console.log("quarterYear", quarterYear, "quarterName ", quarterName);
       await list.items.getById(itemId).update({
-        [START_EVAL_FIELD] : true
+        [START_EVAL_FIELD] : true,
+        [YEAR] : quarterYear, 
+        [Q] : quarterName
+      
       });
 
       // עדכון מנהלים (דורש ensureUser)
@@ -1305,6 +1317,23 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
         subDepartment: userSubDepartment[userId] || '',
         [ACTIVE_FIELD]: !!userActive[userId],
       });
+
+      // ✅ עדכון מיידי של הנתונים השמורים (allAdminUsers) כדי שהפילטר יתעדכן בלי רענון
+      setAllAdminUsers(prev =>
+        prev.map(u => {
+          if (u.id !== userId) return u;
+          return {
+            ...(u as any),
+            __department: userDepartment[userId] || '',
+            __subDepartment: userSubDepartment[userId] || '',
+            department: userDepartment[userId] || '',
+            subDepartment: userSubDepartment[userId] || '',
+          };
+        })
+      );
+
+
+      
 
       // עדכון מנהלים (דורש ensureUser)
       if (managers.direct?.login) {
@@ -1423,6 +1452,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
           <Stack tokens={{ childrenGap: 6 }}>
 
             <EvaluationList
+              
               selectedUsers={selectedUsers}
               onToggleSelectAllRows={onToggleSelectAllRows}
               rowSelection={rowSelection}
@@ -1438,6 +1468,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
               context={props.context}
               departmentOptions={departmentOptions}
               subDepartmentOptions={subDepartmentOptions}
+              getSubDepartmentOptions={getSubDepartmentOptions}
               onSaveUser={onSaveUser}
               userActive={userActive}
               setUserActive={setUserActive}
