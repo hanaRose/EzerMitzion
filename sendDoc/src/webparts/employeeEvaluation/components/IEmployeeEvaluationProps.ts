@@ -19,6 +19,7 @@ export type IUser = {
   subDepartment?: string;     // תת-מחלקה
   directManager?: string;     // מנהל ישיר
   indirectManager?: string;   // מנהל עקיף
+  employeeId : string;
 };
 
 export type IGroup = {

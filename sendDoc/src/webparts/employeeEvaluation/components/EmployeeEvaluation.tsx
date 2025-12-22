@@ -353,7 +353,8 @@ React.useEffect(() => {
           'indirectManager/Title',
           'indirectManager/EMail',
           'operationManager/Title',
-          'operationManager/EMail'
+          'operationManager/EMail',
+          'employeeId'
         )
         .expand('employee', 'directManager', 'indirectManager', 'operationManager')
         .top(5000)();
@@ -412,8 +413,9 @@ console.log("14🤡");
           __department: it.department || '',
           __subDepartment: it.subDepartment || '', 
           __itemId: it.Id,  
+          employeeId : it.employeeId
         };
-
+        console.log("🤩user.employeeId ", user.employeeId);
         users.push(user);
 
         // Populate state maps with existing values from the list
@@ -454,6 +456,7 @@ console.log("15🤡");
 
       console.log("🤡!!users ", users);
       setAllAdminUsers(users);
+
 
       // conspicuous log so user can spot when users are loaded
       try {
@@ -840,7 +843,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
     const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
 
     const spItemId = (user as any).__itemId as number | undefined;
-
+    console.log("🌭get spItemId ", spItemId);
     const upnRaw = (user.userPrincipalName || user.displayName || '');
     const upnEsc = upnRaw.replace(/'/g, "''");
 
@@ -948,8 +951,9 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       Status: statusValue,
       GroupName: groupNameString,
       WorkType: workType,
-      department: userDept || meta.department || '',
-      subDepartment: userSubDept || meta.subDepartment || ''
+      department: selectedDepartment ||userDept || meta.department || '',
+      subDepartment: selectedSubDepartment || userSubDept || meta.subDepartment || '',
+      employeeId : user.employeeId,
     };
 
     // הוסף User fields ל-baseFields (עם Id בסוף)
@@ -1027,8 +1031,9 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       console.debug('Successfully updated item');
     }*/
    // אם יש לנו ID של פריט קיים — מעדכנים אותו ישירות וזהו
+   console.log('spItemId:', spItemId);
     if (spItemId) {
-      console.debug('Updating by __itemId:', spItemId);
+      console.log("🌭1 baseFields" , baseFields);
       await list.items.getById(spItemId).update({
         ...baseFields,
         // אפשר גם לשים רק updateFields אם את לא רוצה לעדכן Quarter/Title וכו'
@@ -1037,18 +1042,18 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       console.debug('Successfully updated item by __itemId');
       return;
     }
-
+    console.log("🌭12");
     // אין __itemId => חיפוש לפי פילטר, אם לא נמצא => יצירה
     if (existing.length === 0) {
+      console.log("🌭13");
       console.log("creating ");
       console.debug('Creating new item (not found by filter).', { filter });
       const addResult = await list.items.add(baseFields);
       const newItemId = addResult.data?.Id || addResult.Id;
       console.debug('Item created successfully with ID:', newItemId);
     } else {
-      console.log("updating  ");
-       const updateFields: any = {
-        
+      console.log("🌭14");
+       const updateFields: any = { 
         EmployeeName: employeeName,
         employeeType: workType,
         WorkType: workType,
@@ -1065,42 +1070,9 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
   };
 
   const markStartEvalProcessIfActive = async (user: IUser) => {
+    console.log("🦊 User ID ", user.id, " user ", user);
     onSaveUser1(String(user.id));
-/*
-    console.log(" in markStartEvalProcessIfActive");
-  const emailRaw = (user.userPrincipalName || user.secondaryText || '').toLowerCase().trim();
-  if (!emailRaw) return;
-
-  // האם המשתמש מסומן פעיל במצב אצלך (כולל שינוי מה-checkbox)
-  const keyById = String(user.id || '').toLowerCase();
-  const isActiveLocal =
-    (keyById && userActive[keyById] !== undefined ? userActive[keyById] : undefined) ??
-    userActive[emailRaw];
-
-  if (!isActiveLocal) return; // רק אם active=true
-
-  const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75'); // אותו דבר כמו אצלך ב-onSaveUser
-  const emailEsc = emailRaw.replace(/'/g, "''");
-
-  // מוצאים את הרשומה של העובד לפי Title = email (כמו שעשית ב-onSaveUser)
-  const items = await list.items
-    .select('Id', ACTIVE_FIELD)
-    .filter(`Title eq '${emailEsc}'`)
-    .top(1)();
-
-  if (items.length === 0) return;
-
-  // "אם ורק אם" גם לפי הערך שבשרת:
-  console.log("items ", items);
-  console.log("items[0][ACTIVE_FIELD] ", items[0][ACTIVE_FIELD]); 
-  const activeServer = items[0][ACTIVE_FIELD] === true;
-  if (!activeServer) return;
-  console.log("🔮🔮🔮🔮🔮🔮🔮");
-  await list.items.getById(items[0].Id).update({
-    [START_EVAL_FIELD]: true
-  });
-
-*/};
+  };
 
 
   // --- מעטפת שממשיכה גם כשיש שגיאה למשתמש בודד ---
@@ -1241,14 +1213,15 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
    const onSaveUser1 = async (userId: string) => {
     try {
-      const user = selectedUsers.find(u => u.id === userId);
+      console.log("userId ", userId);
+      const user = manualUsers.find(u => u.id === userId);
       if (!user) return;
 
       const list = sp.web.lists.getById('4d2579d4-0cd4-436e-bf1b-5ff8109b0c75');
       
       // מצא את הפריט ברשימה לפי email
       const email = user.userPrincipalName || user.secondaryText;
-      const items = await list.items.filter(`Title eq '${email}'`).top(1)();
+      const items = await list.items.filter(`ID eq '${userId}'`).top(1)();
       
       if (items.length === 0) {
         console.warn(`No item found for user ${email}`);
