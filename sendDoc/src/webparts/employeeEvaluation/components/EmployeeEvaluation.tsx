@@ -360,6 +360,7 @@ React.useEffect(() => {
           'EmployeeName',
           'Status',
           ACTIVE_FIELD,
+          START_EVAL_FIELD,
           'department',
           'subDepartment',
           'employee/Title',
@@ -372,6 +373,7 @@ React.useEffect(() => {
           'operationManager/EMail',
           'employeeId'
         )
+        .filter(`${START_EVAL_FIELD} ne 1`)
         .expand('employee', 'directManager', 'indirectManager', 'operationManager')
         .top(5000)();
 
@@ -974,7 +976,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       subDepartment: selectedSubDepartment || userSubDept || meta.subDepartment || '',
       employeeId : user.employeeId,
     };
-    baseFields[START_EVAL_FIELD] = true;
+    //baseFields[START_EVAL_FIELD] = true;
 
 
     // הוסף User fields ל-baseFields (עם Id בסוף)
@@ -1090,11 +1092,35 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
   };
 
-  const markStartEvalProcessIfActive = async (user: IUser) => {
-    console.log("🦊 User ID ", user.id, " user ", user);
-    onSaveUser1(String(user.id));
-  };
 
+  const markStartEvalProcessIfActive = async (user: IUser) => {
+    console.log("🦊 User ID ", user.id, " user ", user.displayName);
+    console.log("user.directManager ", user.directManager, "user.indirectManager ", user.indirectManager);
+    //const userKey = String(user.id || user.userPrincipalName || '').toLowerCase();
+    const managers = selectedManagers[String(user.id || user.userPrincipalName || '')];
+
+    const hasDirect = !!managers?.direct?.login;
+    const hasIndirect = !!managers?.indirect?.login;
+    console.log("hasDirect ", hasDirect, "hasIndirect ", hasIndirect);
+
+    if(hasDirect && hasIndirect){
+      console.log("🕍 NOTUNDEFINED");
+      onSaveUser1(String(user.id));
+      return true;
+     }
+     else{
+      console.log("else");
+      setMsg(null);
+      setMsg({type: MessageBarType.error, text: ` אין אפשרות להתחיל תהליך עבור ${user.displayName}  חסר מידע נדרש.` });
+      throw new Error(`אין אפשרות להתחיל תהליך עבור ${user.displayName || user.userPrincipalName || '(ללא שם)'} חסר מידע נדרש.`);
+      return false;
+     }
+    
+  };
+  
+
+
+  
 
   // --- מעטפת שממשיכה גם כשיש שגיאה למשתמש בודד ---
   const tryAddWorker = async (user: IUser, source: string, groupId?: string) => {
@@ -1102,7 +1128,10 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       console.log("1 ");
       await addWorkerItemIfMissing(user, source, groupId);
       console.log("2 ");
-      await markStartEvalProcessIfActive(user);
+      const r = await markStartEvalProcessIfActive(user);
+      if(r === false){
+        return { ok: false as const, user, error:  ` אין אפשרות להתחיל תהליך עבור ${user.displayName}  חסר מידע נדרש.` };
+      }
       console.log("3 ");
 
       return { ok: true as const, user };
@@ -1187,17 +1216,21 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
 
       // הודעת סיכום
       if (failures.length === 0) {
-        setMsg({ type: MessageBarType.success, text: `עודכנו בהצלחה ${actuallySent.length} רשומות עובדים (נוצרו חדשות או עודכנו קיימות).` });
+        setMsg({ type: MessageBarType.success, text: `תהליך הערכה מתחיל עבור ${actuallySent.length}  עובדים ` });
       } else {
-        const names = failures
-          .slice(0, 10)
-          .map(f => f.user.displayName || f.user.userPrincipalName || '(ללא שם)')
-          .join(', ');
-        const extra = failures.length > 10 ? ` ועוד ${failures.length - 10} נוספים` : '';
-        setMsg({
-          type: MessageBarType.warning,
-          text: `הפעולה הושלמה חלקית: ${actuallySent.length} עובדים עודכנו בהצלחה, אך ${failures.length} כשלו. בעיות: ${names}${extra}. ראי לוג בקונסול לפרטים.`
-        });
+
+      const errors = failures
+        .slice(0, 10)
+        .map(f => (typeof f.error === 'string' ? f.error : (f.error?.message || String(f.error))))
+        .join('\n');
+
+      const extra = failures.length > 10 ? `\nועוד ${failures.length - 10} נוספים...` : '';
+
+      setMsg({
+        type: MessageBarType.warning,
+        text: `הפעולה הושלמה חלקית: ${actuallySent.length} עובדים עודכנו בהצלחה, אך ${failures.length} כשלו. בעיות:${errors}${extra}`
+      });
+
       }
     } catch (e: any) {
       setMsg({ type: MessageBarType.error, text: `שגיאה בשליחה: ${e?.message || e}` });
@@ -1283,8 +1316,6 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       }
 
 
-      console.log(`✅ Saved user ${userId} to SharePoint`);
-      setMsg({ type: MessageBarType.success, text: `נשמר בהצלחה: ${user.displayName}` });
     } catch (e) {
       console.error('Failed to save user', e);
       setMsg({ type: MessageBarType.error, text: 'שגיאה בשמירת המשתמש' });
@@ -1384,7 +1415,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
   return (
     <Stack tokens={{ childrenGap: 16 }}>
       {msg && (
-        <MessageBar messageBarType={msg.type} isMultiline={false} onDismiss={() => setMsg(null)}>
+        <MessageBar messageBarType={msg.type} isMultiline={true} onDismiss={() => setMsg(null)}>
           {msg.text}
         </MessageBar>
       )}
