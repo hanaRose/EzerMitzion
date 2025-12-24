@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Stack, Label, Checkbox, IconButton, Dropdown, IDropdownOption } from '@fluentui/react';
+import { Stack, Label, Checkbox, IconButton, Dropdown, IDropdownOption, ComboBox, IComboBoxOption } from '@fluentui/react';
 import { PeoplePicker, PrincipalType } from '@pnp/spfx-controls-react/lib/PeoplePicker';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { IUser } from './IEmployeeEvaluationProps';
@@ -73,6 +73,10 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
   setUserActive,
 }) => {
   const [editingIds, setEditingIds] = React.useState<IEditingState>({});
+  const [searchText, setSearchText] = React.useState<string>('');
+  const [selectedUserKey, setSelectedUserKey] = React.useState<string | undefined>(undefined);
+
+
 
   const toggleEditMode = (userId: string) => {
     setEditingIds((prev) => ({
@@ -83,6 +87,32 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
 
   const hasOwn = (o: object, k: string) =>
   Object.prototype.hasOwnProperty.call(o, k);
+
+  const employeeOptions: IComboBoxOption[] = React.useMemo(() => {
+  return selectedUsers.map(u => ({
+    key: u.id,
+    text: u.displayName || u.userPrincipalName || u.secondaryText || '(ללא שם)',
+    data: u,
+  }));
+  }, [selectedUsers]);
+
+  const filteredUsers = React.useMemo(() => {
+    // אם בחרו עובד מהרשימה – מציגים רק אותו
+    if (selectedUserKey) {
+      return selectedUsers.filter(u => u.id === selectedUserKey);
+    }
+
+    // אחרת מסננים לפי טקסט
+    const q = searchText.trim().toLowerCase();
+    if (!q) return selectedUsers;
+
+    return selectedUsers.filter(u => {
+      const name = (u.displayName || '').toLowerCase();
+      const upn = (u.userPrincipalName || '').toLowerCase();
+      const email = (u.secondaryText || '').toLowerCase();
+      return name.includes(q) || upn.includes(q) || email.includes(q);
+    });
+  }, [selectedUsers, selectedUserKey, searchText]);
 
 
   return (
@@ -99,6 +129,34 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
               onChange={onToggleSelectAllRows}
             />
           </Stack>
+
+         <ComboBox
+            label="חיפוש/בחירת עובד"
+            placeholder="התחילי להקליד שם / מייל ולבחור מהרשימה"
+            options={employeeOptions}
+            autoComplete="on"
+            allowFreeform={true}
+            useComboBoxAsMenuWidth={true}
+            selectedKey={selectedUserKey}
+            text={searchText}
+            onInputValueChange={(newValue) => {
+              setSelectedUserKey(undefined); // חוזרים למצב סינון חופשי
+              setSearchText(newValue || '');
+            }}
+            onChange={(_, option, __, value) => {
+              // בחירה מהרשימה
+              if (option) {
+                setSelectedUserKey(String(option.key));
+                setSearchText(option.text);
+                return;
+              }
+              // הקלדה חופשית
+              setSelectedUserKey(undefined);
+              setSearchText(value || '');
+            }}
+          />
+
+
 
           {/* כותרות הטבלה */}
           <div
@@ -127,7 +185,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
           </div>
 
           {/* רשימת עובדים */}
-          {selectedUsers.map((u) => {
+          {filteredUsers.map((u) => {
             const isEditing = editingIds[u.id];
             //const empType = userEmployeeType[u.id] || u.employeeType || '';
             //const dept = userDepartment[u.id] || u.department || '';
