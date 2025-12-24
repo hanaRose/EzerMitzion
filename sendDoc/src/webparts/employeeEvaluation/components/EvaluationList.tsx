@@ -80,6 +80,11 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
       [userId]: !prev[userId],
     }));
   };
+
+  const hasOwn = (o: object, k: string) =>
+  Object.prototype.hasOwnProperty.call(o, k);
+
+
   return (
     <Stack tokens={{ childrenGap: 8 }}>
 
@@ -124,10 +129,20 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
           {/* רשימת עובדים */}
           {selectedUsers.map((u) => {
             const isEditing = editingIds[u.id];
-            const empType = userEmployeeType[u.id] || u.employeeType || '';
-            const dept = userDepartment[u.id] || u.department || '';
-            const subDept = userSubDepartment[u.id] || u.subDepartment || '';
-            const rowSubDeptOptions = getSubDepartmentOptions(dept);
+            //const empType = userEmployeeType[u.id] || u.employeeType || '';
+            //const dept = userDepartment[u.id] || u.department || '';
+            //const subDept = userSubDepartment[u.id] || u.subDepartment || '';
+            const empType = hasOwn(userEmployeeType, u.id) ? userEmployeeType[u.id] : (u.employeeType || '');
+            const dept = hasOwn(userDepartment, u.id) ? userDepartment[u.id] : (u.department || '');
+            const subDept = hasOwn(userSubDepartment, u.id) ? userSubDepartment[u.id] : (u.subDepartment || '');
+
+
+            const rowSubDeptOptions = [
+              { key: '', text: 'בחר תת-מחלקה' },
+                ...getSubDepartmentOptions(dept).map(o => ({ ...o, selected: false })),
+            ];
+
+            console.log("😎rowSubDeptOptions ", rowSubDeptOptions);
             const managers = selectedManagers[u.id] || {};
             
             return (
@@ -190,7 +205,8 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
                 {/* תת-מחלקה */}
                 {isEditing ? (
                   <Dropdown
-                    selectedKey={subDept}
+                    key={`${u.id}-${dept}`}
+                    selectedKey={subDept? subDept: ''}
                     options={rowSubDeptOptions}
                     disabled={!dept}
                     onChange={(_, option) => {

@@ -137,8 +137,12 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   const [userSubDepartment, setUserSubDepartment] = React.useState<Record<string, string>>({});
   const [userActive, setUserActive] = React.useState<Record<string, boolean>>({});
 
-  const [selectedDepartment, setSelectedDepartment] = React.useState<string | null>('');
-  const [selectedSubDepartment, setSelectedSubDepartment] = React.useState<string | null>(null);
+  //const [selectedDepartment, setSelectedDepartment] = React.useState<string | null>('');
+  //const [selectedSubDepartment, setSelectedSubDepartment] = React.useState<string | null>(null);
+  const [selectedDepartment, setSelectedDepartment] = React.useState<string>('');
+  const [selectedSubDepartment, setSelectedSubDepartment] = React.useState<string>('');
+
+
 
   // כל העובדים כפי שנטענו מ־adminEmployee – לפני סינון
   const [allAdminUsers, setAllAdminUsers] = React.useState<IUser[]>([]);
@@ -161,6 +165,25 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
   }, [departmentsData]);
 
   const subDepartmentOptions: IDropdownOption[] = React.useMemo(() => {
+  const base = [{ key: '', text: 'בחר.י תת-מחלקה' }];
+
+  if (!selectedDepartment) return base;
+
+  const uniqueSubDepts = [...new Set(
+    departmentsData
+      .filter(d => d.department === selectedDepartment)
+      .map(d => d.subDepartment)
+      .filter(Boolean)
+  )];
+
+  return [
+    ...base,
+    ...uniqueSubDepts.map(d => ({ key: d, text: d, selected: false }))
+  ];
+}, [departmentsData, selectedDepartment]);
+
+/*
+  const subDepartmentOptions: IDropdownOption[] = React.useMemo(() => {
     if (selectedDepartment) {
       const uniqueSubDepts = [...new Set(departmentsData
         .filter(d => d.department === selectedDepartment)
@@ -170,6 +193,7 @@ const EmployeeEvaluation: React.FC<IEmployeeEvaluationProps> = (props) => {
     }
     return [];
   }, [departmentsData, selectedDepartment]);
+*/
 
   const getSubDepartmentOptions = React.useCallback((dept: string): IDropdownOption[] => {
   if (!dept) return [];
@@ -1450,13 +1474,16 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
             <Dropdown
               placeholder="בחר.י מחלקה"
               options={departmentOptions}
-              selectedKey={selectedDepartment || undefined}
+              //selectedKey={selectedDepartment || undefined}
+              selectedKey={selectedDepartment}
               onChange={(_, opt) => {
-                const nextDept = (opt?.key as string) || null;
+                const nextDept = (opt?.key as string) || '';
                 setSelectedDepartment(nextDept);
                 console.log("setSelectedDepartment(nextDept) ",nextDept );
                 // איפוס תת-מחלקה בעת שינוי מחלקה
-                setSelectedSubDepartment(null);
+                //setSelectedSubDepartment(null);
+                setSelectedSubDepartment('');
+
               }}
             />
           </Stack>
@@ -1464,12 +1491,13 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
           <Stack style={{ minWidth: 220 }}>
             <Label>תת-מחלקה</Label>
             <Dropdown
+              key={`sub-${selectedDepartment}`}
               placeholder="בחר.י תת-מחלקה"
               options={subDepartmentOptions}
               disabled={!selectedDepartment}
-              selectedKey={selectedSubDepartment || undefined}
+              selectedKey={selectedSubDepartment}
               onChange={(_, opt) => {
-                const nextSubDept = (opt?.key as string) || null;
+                const nextSubDept = (opt?.key as string) || '';
                 setSelectedSubDepartment(nextSubDept);
               }}
             />
