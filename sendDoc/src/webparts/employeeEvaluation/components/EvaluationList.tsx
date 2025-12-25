@@ -132,7 +132,7 @@ const EvaluationList: React.FC<IEvaluationListProps> = ({
 
          <ComboBox
             label="חיפוש/בחירת עובד"
-            placeholder="התחילי להקליד שם / מייל ולבחור מהרשימה"
+            placeholder="התחיל.י להקליד שם / מייל ולבחור מהרשימה"
             options={employeeOptions}
             autoComplete="on"
             allowFreeform={true}

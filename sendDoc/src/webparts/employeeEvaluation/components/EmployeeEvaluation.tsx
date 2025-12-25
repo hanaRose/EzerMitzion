@@ -1206,7 +1206,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       const selectedToSend = selectedUsers.filter(u => !!rowSelection[u.id]);
 
       if (selectedToSend.length === 0) {
-        setMsg({ type: MessageBarType.error, text: 'לא נבחרו עובדים (סמני V ליד העובדים שברצונך לשלוח).' });
+        setMsg({ type: MessageBarType.error, text: 'לא נבחרו עובדים (סמנ.י V ליד העובדים שברצונך לשלוח).' });
         setBusy(false);
         return;
       }
@@ -1218,7 +1218,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
       // ✅ רק מי שסומן עם ה-V בטבלה
 
       if (selectedToSend.length === 0) {
-        setMsg({ type: MessageBarType.warning, text: 'לא נבחרו עובדים לשליחה (סמני V ליד העובדים).' });
+        setMsg({ type: MessageBarType.warning, text: 'לא נבחרו עובדים לשליחה (סמנ.י V ליד העובדים).' });
         setBusy(false);
         return;
       }
@@ -1304,7 +1304,7 @@ const getUserMeta = async (user: IUser): Promise<UserMeta> => {
         [Q] : quarterName
       
       });
-
+      console.log("after update startVal Year and Q "); 
       // עדכון מנהלים (דורש ensureUser)
       if (managers.direct?.login) {
         try {
