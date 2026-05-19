@@ -1,0 +1,19 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "useGulp": false,
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "nodeVersion": "22.22.2",
+    "sdksVersions": {},
+    "version": "1.22.2",
+    "libraryName": "newsletter-cards",
+    "libraryId": "2036d4b2-7a88-4927-9ba7-330d174a894a",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "NewsletterCards",
+    "solutionShortDescription": "NewsletterCards description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

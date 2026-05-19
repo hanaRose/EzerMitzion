@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "newsletter-cards-client-side-solution",
+    "id": "2036d4b2-7a88-4927-9ba7-330d174a894a",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.22.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "NewsletterCards description"
+      },
+      "longDescription": {
+        "default": "NewsletterCards description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "newsletter-cards Feature",
+        "description": "The feature that activates elements of the newsletter-cards solution.",
+        "id": "1511f47d-f06a-40c8-bfd2-fd1485a826ff",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/newsletter-cards.sppkg"
+  }
+}
