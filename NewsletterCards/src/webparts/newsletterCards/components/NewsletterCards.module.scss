@@ -7,9 +7,43 @@
 }
 
 .inner {
-  max-width: 1120px;
+  max-width: 1470px;
+  width: 91%;
   margin: 0 auto;
-  padding: 18px 0 38px;
+  padding: 40px 0 38px;
+  position: relative;
+  right: 0;
+}
+
+
+/* 1200-1599: less left */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .inner {
+    right: 0px;
+  }
+}
+
+/* Around 1600: good alignment */
+@media (min-width: 1600px) and (max-width: 1749px) {
+  .inner {
+    right: 34px;
+  }
+}
+
+/* 1800-2000: reduce again */
+@media (min-width: 1750px) {
+  .inner {
+    right: -15px;
+  }
+}
+
+/* Mobile/tablet: no shift */
+@media (max-width: 900px) {
+  .inner {
+    width: 90%;
+    padding: 18px 16px 34px;
+    right: 0;
+  }
 }
 /*
 .title {
