@@ -1,9 +1,35 @@
+@font-face {
+  font-family: "Almoni Neue DL 4.0 AAA";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Almoni Neue DL 4.0 AAA";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 .newsletterWrapper {
   width: 100%;
   background: #ffffff;
   direction: rtl;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Almoni Neue DL 4.0 AAA", Arial, Helvetica, sans-serif;
   color: #4b2929;
+}
+
+.newsletterWrapper *,
+.newsletterWrapper button,
+.newsletterWrapper a,
+.newsletterWrapper input,
+.newsletterWrapper textarea {
+  font-family: inherit;
 }
 
 .inner {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Elements xmlns="http://schemas.microsoft.com/sharepoint/">
+    <CustomAction
+        Title="AmiTopNav"
+        Location="ClientSideExtension.ApplicationCustomizer"
+        ClientSideComponentId="897ea82b-84dc-4580-9716-f8d5c758945c"
+        ClientSideComponentProperties="{&quot;testMessage&quot;:&quot;Test message&quot;}">
+    </CustomAction>
+</Elements>

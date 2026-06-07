@@ -1,0 +1,402 @@
+/*
+.amiTopNav {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 96px;
+  background: #ffffff;
+  border-width: 0 0 1.5px 1.5px;
+  border-style: solid;
+  border-color: #DECDBA;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 0 40px;
+  direction: rtl;
+  display: flex;
+  align-items: center;
+  padding: 0 78px 0 40px;
+  z-index: 1000;
+  font-family: "Almoni Neue DL 4.0 AAA", Arial, sans-serif;
+}
+*/
+
+@font-face {
+  font-family: "Almoni Neue DL 4.0 AAA";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Almoni Neue DL 4.0 AAA";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+.amiTopNav {
+  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 96px;
+  background: #ffffff;
+  border-width: 0 0 1.5px 1.5px;
+  border-style: solid;
+  border-color: #DECDBA;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 0 0 0 40px;
+  direction: rtl;
+  display: flex;
+  align-items: center;
+  gap: 42px;
+  padding: 0 78px 0 40px;
+  z-index: 1000;
+  font-family: "Almoni Neue DL 4.0 AAA", Arial, sans-serif;
+}
+/*
+.logoWrap {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}*/
+.logoWrap {
+  position: static;
+  flex: 0 0 233px;
+  width: 233px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 233px;
+  height: 46px;
+  object-fit: contain;
+  display: block;
+}
+
+/*
+.navLinks {
+  position: absolute;
+  top: 35px;
+  right: 500px;
+  //left: 430px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 28px;
+  height: 29px;
+  overflow: visible;
+  white-space: nowrap;
+  direction: rtl;
+}*/
+.navLinks {
+  position: static;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 40px;
+  direction: rtl;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.navLinks a {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 29px;
+  text-align: right;
+  color: #000000;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: "Almoni Neue DL 4.0 AAA", Arial, sans-serif;
+}
+
+.navLinks a:hover {
+  color: #AF1E24;
+}
+
+/*
+.mainButton {
+  position: absolute;
+  left: 148px;
+  top: 25px;
+  width: 212px;
+  height: 48px;
+  padding: 8px 32px;
+  box-sizing: border-box;
+  border-radius: 26px;
+  background: #AF1E24;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 32px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+  white-space: nowrap;
+}*/
+.mainButton {
+  position: static;
+  flex: 0 0 260px;
+  width: 260px;
+  height: 48px;
+  padding: 8px 32px;
+  box-sizing: border-box;
+  border-radius: 26px;
+  background: #AF1E24;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 32px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+
+.mainButton:hover {
+  background: #95191e;
+  color: #ffffff;
+}
+
+.accessibilityButton {
+  position: absolute;
+  left: 40px;
+  top: 35px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: #36080A;
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 26px;
+  padding: 0;
+}
+
+.hamburger {
+  display: none;
+  position: absolute;
+  left: 24px;
+  top: 31px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: #36080A;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+/* התאמה למסכים קטנים */
+@media (max-width: 1200px) {
+  .amiTopNav {
+    padding-right: 32px;
+    padding-left: 24px;
+  }
+
+  .navLinks {
+    right: 330px;
+    gap: 24px;
+  }
+
+  .mainButton {
+    left: 80px;
+  }
+}
+
+@media (max-width: 900px) {
+  .navLinks,
+  .mainButton,
+  .accessibilityButton {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .logo {
+    width: 190px;
+    height: auto;
+  }
+}
+
+
+:global([data-automationid="HorizontalNav"]),
+:global([data-automation-id="HorizontalNav"]),
+:global([data-automationid="SiteNavigation"]),
+:global([data-automation-id="SiteNavigation"]) {
+  display: none !important;
+}
+
+
+:global([data-automationid="SiteHeader"]),
+:global([data-automation-id="SiteHeader"]) {
+  min-height: 0 !important;
+}
+
+.moreMenuWrap {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.moreButton {
+  border: none;
+  background: transparent;
+  color: #000000;
+  font-size: 24px;
+  line-height: 29px;
+  cursor: pointer;
+  padding: 0 6px;
+}
+
+.moreMenu {
+  display: none;
+  position: absolute;
+  top: 38px;
+  right: 0;
+  min-width: 190px;
+  background: #ffffff;
+  border: 1px solid #DECDBA;
+  border-radius: 0 0 0 18px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.08);
+  padding: 10px 0;
+  z-index: 2000;
+}
+
+.moreMenuOpen {
+  display: block;
+}
+
+.moreMenu a {
+  display: block;
+  padding: 8px 18px;
+  font-size: 18px;
+  line-height: 24px;
+  color: #000000;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: "Almoni Neue DL 4.0 AAA", Arial, sans-serif;
+}
+
+.moreMenu a:hover {
+  background: #f7f2ee;
+  color: #AF1E24;
+}
+
+@media (max-width: 1600px) {
+  .amiTopNav {
+    gap: 24px;
+    padding: 0 48px 0 32px;
+  }
+
+  .logoWrap {
+    flex-basis: 200px;
+    width: 200px;
+  }
+
+  .logo {
+    width: 200px;
+    height: auto;
+  }
+
+  .navLinks {
+    gap: 22px;
+  }
+
+  .navLinks a {
+    font-size: 18px;
+    font-family: "Almoni Neue DL 4.0 AAA", Arial, sans-serif;
+  }
+
+  .mainButton {
+    flex-basis: 230px;
+    width: 230px;
+    font-size: 18px;
+    padding: 8px 20px;
+  }
+}
+
+.mobileMenu {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .amiTopNav {
+    height: 80px;
+    padding: 0 24px;
+    border-radius: 0 0 0 28px;
+  }
+
+  .logoWrap {
+    flex: 0 0 190px;
+    width: 190px;
+  }
+
+  .logo {
+    width: 190px;
+    height: auto;
+  }
+
+  .navLinks,
+  .mainButton {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+    position: static;
+    margin-right: auto;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: transparent;
+    color: #36080A;
+    font-size: 30px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobileMenu {
+    display: none;
+    position: absolute;
+    top: 80px;
+    right: 0;
+    left: 0;
+    background: #ffffff;
+    border: 1px solid #DECDBA;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.08);
+    padding: 12px 24px;
+    z-index: 3000;
+  }
+
+  .mobileMenuOpen {
+    display: block;
+  }
+
+  .mobileMenu a {
+    display: block;
+    padding: 12px 0;
+    font-size: 18px;
+    color: #000000;
+    text-decoration: none;
+    border-bottom: 1px solid #f0e7dd;
+  }
+
+  .mobileMenu a:hover {
+    color: #AF1E24;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "ami-top-nav-application-customizer": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/amiTopNav/AmiTopNavApplicationCustomizer.js",
+          "manifest": "./src/extensions/amiTopNav/AmiTopNavApplicationCustomizer.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "AmiTopNavApplicationCustomizerStrings": "lib/extensions/amiTopNav/loc/{locale}.js"
+  }
+}
