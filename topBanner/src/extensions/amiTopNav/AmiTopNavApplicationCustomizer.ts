@@ -20,6 +20,9 @@ export default class AmiTopNavApplicationCustomizer
   extends BaseApplicationCustomizer<IAmiTopNavApplicationCustomizerProperties> {
 
   private _topPlaceholder: PlaceholderContent | undefined;
+  private _isCommandBarVisible: boolean = false;
+  private _commandBarObserver: MutationObserver | undefined;
+  private _isCommandBarShortcutBound: boolean = false;
 
   @override
   public onInit(): Promise<void> {
@@ -114,6 +117,7 @@ export default class AmiTopNavApplicationCustomizer
 
     this._hideOriginalSharePointNavigation();
     this._bindMoreMenuEvents();
+    this._setupCommandBarShortcut();
   }
 
  private async _waitForExistingNavigationItems(): Promise<ITopNavItem[]> {
@@ -437,6 +441,138 @@ private async _loadNavigationFromMenuStateApi(): Promise<ITopNavItem[]> {
     }
 
     return finalUrl;
+  }
+
+  private _setupCommandBarShortcut(): void {
+    this._ensureCommandBarToggleStyle();
+    this._applyCommandBarVisibility();
+
+    if (!this._isCommandBarShortcutBound) {
+      this._isCommandBarShortcutBound = true;
+
+      document.addEventListener('keydown', (event: KeyboardEvent) => {
+        const target = event.target as HTMLElement | null;
+
+        const isTypingInsideInput =
+          target?.tagName === 'INPUT' ||
+          target?.tagName === 'TEXTAREA' ||
+          target?.isContentEditable;
+
+        if (isTypingInsideInput) {
+          return;
+        }
+
+        if (event.shiftKey && event.code === 'KeyP') {
+          event.preventDefault();
+          event.stopPropagation();
+
+          this._isCommandBarVisible = !this._isCommandBarVisible;
+          this._applyCommandBarVisibility();
+        }
+      });
+    }
+
+    if (this._commandBarObserver) {
+      this._commandBarObserver.disconnect();
+    }
+
+    this._commandBarObserver = new MutationObserver(() => {
+      this._applyCommandBarVisibility();
+    });
+
+    this._commandBarObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  }
+
+  private _ensureCommandBarToggleStyle(): void {
+    const oldStyleIds = [
+      'ami-hide-command-bar-wrapper',
+      'ami-hide-command-bar-wrapper-v2'
+    ];
+
+    oldStyleIds.forEach((styleId: string) => {
+      document.getElementById(styleId)?.remove();
+    });
+
+    const styleId = 'ami-command-bar-shortcut-style';
+
+    if (document.getElementById(styleId)) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = styleId;
+
+    style.innerHTML = `
+      body:not(.ami-command-bar-visible) .commandBarWrapper,
+      body:not(.ami-command-bar-visible) .SPPageChrome-app .commandBarWrapper,
+      body:not(.ami-command-bar-visible) div.commandBarWrapper,
+      body:not(.ami-command-bar-visible) [class~="commandBarWrapper"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+      }
+
+      body.ami-command-bar-visible .commandBarWrapper,
+      body.ami-command-bar-visible .SPPageChrome-app .commandBarWrapper,
+      body.ami-command-bar-visible div.commandBarWrapper,
+      body.ami-command-bar-visible [class~="commandBarWrapper"] {
+        display: block !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        max-height: 48px !important;
+        overflow: visible !important;
+        visibility: visible !important;
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  private _applyCommandBarVisibility(): void {
+    document.body.classList.toggle(
+      'ami-command-bar-visible',
+      this._isCommandBarVisible
+    );
+
+    const elements = document.querySelectorAll(
+      '.commandBarWrapper, .SPPageChrome-app .commandBarWrapper, div.commandBarWrapper, [class~="commandBarWrapper"]'
+    );
+
+    elements.forEach((element: Element) => {
+      const htmlElement = element as HTMLElement;
+
+      if (this._isCommandBarVisible) {
+        htmlElement.style.setProperty('display', 'block', 'important');
+        htmlElement.style.setProperty('height', '48px', 'important');
+        htmlElement.style.setProperty('min-height', '48px', 'important');
+        htmlElement.style.setProperty('max-height', '48px', 'important');
+        htmlElement.style.setProperty('overflow', 'visible', 'important');
+        htmlElement.style.setProperty('visibility', 'visible', 'important');
+
+        htmlElement.style.removeProperty('padding');
+        htmlElement.style.removeProperty('margin');
+        htmlElement.style.removeProperty('border');
+      } else {
+        htmlElement.style.setProperty('display', 'none', 'important');
+        htmlElement.style.setProperty('height', '0', 'important');
+        htmlElement.style.setProperty('min-height', '0', 'important');
+        htmlElement.style.setProperty('max-height', '0', 'important');
+        htmlElement.style.setProperty('padding', '0', 'important');
+        htmlElement.style.setProperty('margin', '0', 'important');
+        htmlElement.style.setProperty('border', '0', 'important');
+        htmlElement.style.setProperty('overflow', 'hidden', 'important');
+        htmlElement.style.setProperty('visibility', 'hidden', 'important');
+      }
+    });
   }
 
   private _escapeHtml(value: string): string {
