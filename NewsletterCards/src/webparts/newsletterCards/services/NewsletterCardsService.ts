@@ -30,7 +30,7 @@ export class NewsletterCardsService {
       `${this.context.pageContext.web.absoluteUrl}` +
       `/_api/web/GetList(@listUrl)/items` +
       `?@listUrl='${encodeURIComponent(listUrl)}'` +
-      `&$select=Id,Title,DescriptionLine1,DescriptionLine2,HebrewDateLine1,HebrewDateLine2,ImageUrl,LinkUrl,SortOrder,IsActive` +
+      `&$select=Id,Title,DescriptionLine1,DescriptionLine2,HebrewDateLine1,HebrewDateLine2,CardImage,LinkUrl,SortOrder,IsActive` +
       //`&$filter=IsActive eq true` +
       `&$orderby=SortOrder asc,Id asc`;
 
@@ -50,6 +50,7 @@ export class NewsletterCardsService {
 
     const json = await response.json();
     console.log('NewsletterCards items from SharePoint:', json.value);
+    console.log('First CardImage value:', json.value?.[0]?.CardImage);
 
     return (json.value || []).map((item: any): INewsletterItem => ({
       id: item.Id,
@@ -58,7 +59,7 @@ export class NewsletterCardsService {
       descriptionLine2: item.DescriptionLine2 || '',
       hebrewDateLine1: item.HebrewDateLine1 || '',
       hebrewDateLine2: item.HebrewDateLine2 || '',
-      imageUrl: item.ImageUrl?.Url || '',
+      imageUrl: this.getImageUrlFromSharePointImageField(item.CardImage, item.Id),
       linkUrl: item.LinkUrl?.Url || '#'
     }));
   }
@@ -141,10 +142,14 @@ export class NewsletterCardsService {
       'HebrewDateLine2',
       '<Field Type="Text" DisplayName="HebrewDateLine2" Name="HebrewDateLine2" StaticName="HebrewDateLine2" MaxLength="255" />'
     );
-
+    /*
     await this.ensureField(
       'ImageUrl',
       '<Field Type="URL" DisplayName="Image Url" Name="ImageUrl" StaticName="ImageUrl" Format="Hyperlink" />'
+    );*/
+    await this.ensureField(
+      'CardImage',
+      '<Field Type="Thumbnail" DisplayName="Card Image" Name="CardImage" StaticName="CardImage" />'
     );
 
     await this.ensureField(
@@ -218,6 +223,50 @@ export class NewsletterCardsService {
     );
 
     return response.ok;
+  }
+
+  private getImageUrlFromSharePointImageField(value: any, itemId: number): string {
+    if (!value) {
+      return '';
+    }
+
+    let imageValue = value;
+
+    if (typeof value === 'string') {
+      try {
+        imageValue = JSON.parse(value);
+      } catch {
+        return value;
+      }
+    }
+
+    if (imageValue.serverUrl && imageValue.serverRelativeUrl) {
+      return `${imageValue.serverUrl}${imageValue.serverRelativeUrl}`;
+    }
+
+    if (imageValue.serverRelativeUrl) {
+      const webUrl = new URL(this.context.pageContext.web.absoluteUrl);
+      return `${webUrl.origin}${imageValue.serverRelativeUrl}`;
+    }
+
+    if (imageValue.url) {
+      return imageValue.url;
+    }
+
+    if (imageValue.Url) {
+      return imageValue.Url;
+    }
+
+    if (imageValue.fileName && itemId) {
+      const webUrl = new URL(this.context.pageContext.web.absoluteUrl);
+      const listUrl = this.getListServerRelativeUrl();
+      const encodedFileName = encodeURIComponent(imageValue.fileName);
+
+      return `${webUrl.origin}${listUrl}/Attachments/${itemId}/${encodedFileName}`;
+    }
+
+    console.log('Unknown CardImage format:', imageValue);
+    return '';
   }
 
   private getListServerRelativeUrl(): string {
