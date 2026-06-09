@@ -33,41 +33,25 @@
 }
 
 .inner {
-  max-width: 1470px;
-  width: 91%;
+  max-width: 1200px;
+  width: calc(100% - 200px);
   margin: 0 auto;
-  padding: 40px 0 38px;
+  padding: 56px 0 58px;
   position: relative;
   right: 0;
 }
 
-
-/* 1200-1599: less left */
-@media (min-width: 1200px) and (max-width: 1599px) {
+@media (max-width: 1400px) {
   .inner {
-    right: 0px;
+    width: calc(100% - 80px);
+    right: 0;
   }
 }
 
-/* Around 1600: good alignment */
-@media (min-width: 1600px) and (max-width: 1749px) {
-  .inner {
-    right: 34px;
-  }
-}
-
-/* 1800-2000: reduce again */
-@media (min-width: 1750px) {
-  .inner {
-    right: -15px;
-  }
-}
-
-/* Mobile/tablet: no shift */
 @media (max-width: 900px) {
   .inner {
-    width: 90%;
-    padding: 18px 16px 34px;
+    width: calc(100% - 32px);
+    padding: 28px 0 34px;
     right: 0;
   }
 }
@@ -90,7 +74,7 @@
   margin: 0 0 36px;
   padding-right: 0;
   padding-left: 170px;
-  font-size: 22px;
+  font-size: 28px;
   line-height: 1.2;
   font-weight: 500;
   color: #4c2b2b;
@@ -130,17 +114,18 @@
 
 .card {
   width: 100%;
-  min-height: 140px;
+  min-height: 153px;
   display: grid;
-  grid-template-columns: 288px 144px 1fr 112px;
+  grid-template-columns: 26% 10% minmax(0, 1fr) 10%;
   align-items: stretch;
   background: #ffffff;
-  box-shadow: 0 10px 23px rgba(91, 55, 55, 0.11);
+  box-shadow: 10px 10px 30px rgba(54, 8, 10, 0.08);
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .imageArea {
-  height: 140px;
+  height: 153px;
   overflow: hidden;
   border-radius: 30px 10px 10px 0;
   background: linear-gradient(135deg, #e83333 0%, #f35b4c 100%);
@@ -157,21 +142,20 @@
 .dateArea {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
 
-  padding-top: 6px;
-  padding-right: 60px;
+  padding: 0 18px;
   color: #5b3535;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   line-height: 1.45;
   text-align: center;
 }
 
 .calendarIcon {
-  width: 21px;
-  height: 21px;
+  width: 18px;
+  height: 16px;
   margin-bottom: 13px;
   position: relative;
   border: 1.6px solid #9a7f7f;
@@ -181,10 +165,10 @@
 .calendarIcon::before {
   content: '';
   position: absolute;
-  top: 4px;
+  top: 5px;
   right: 0;
   left: 0;
-  height: 1.5px;
+  height: 1px;
   background: #9a7f7f;
 }
 
@@ -192,62 +176,80 @@
   content: '';
   position: absolute;
   top: -4px;
-  right: 4px;
+  right: 2px;
   width: 11px;
-  height: 6px;
+  height: 5px;
   border-right: 1.6px solid #9a7f7f;
   border-left: 1.6px solid #9a7f7f;
 }
 
 .dateText {
   min-height: 42px;
+  min-width: 100px;
+  white-space: nowrap;
+}
+
+.dateText div {
+  white-space: nowrap;
 }
 
 .smallUnderline {
-  width: 45px;
+  width: 47px;
   height: 3px;
   margin-top: 8px;
+
+  align-self: flex-start;
+
   border-radius: 999px;
   background: #ff947c;
-  transform: rotate(-4deg);
-}
+  transform: translateX(-6px) rotate(-4deg);}
 
 .contentArea {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: right;
-  padding: 10px 28px 8px 20px;
+  padding: 29px 36px 8px 28px;
 }
 
 .contentArea h3 {
-  margin: 0 0 9px;
+  margin: 0 0 6px;
   color: #3f2020;
-  font-size: 19px;
-  line-height: 1.35;
+  font-size: 22px;
+  line-height: 30px;
   font-weight: 700;
 }
 
 .contentArea p {
   margin: 0;
-  color: #6f5555;
-  font-size: 12.5px;
-  line-height: 1.75;
-  font-weight: 600;
+  color: #36080A;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 400;
 }
 
 .viewLink {
   display: flex;
   flex-direction: row-reverse;
-  align-items: center;
   justify-content: center;
   gap: 10px;
+  align-self: end;
+  margin-bottom: 20px;
 
   text-decoration: none;
-  color: #7a5f5f;
-  font-size: 13px;
-  font-weight: 600;
+  color: #36080A;
+  font-size: 15px;
+  font-weight: 400;
   padding-top: 12px;
+}
+.viewLink span {
+  color: #36080A;
+}
+
+.viewLink:visited,
+.viewLink:hover,
+.viewLink:active {
+  color: #36080A;
 }
 
 .viewLink:hover {
@@ -266,6 +268,7 @@
   justify-content: center;
 
   flex-shrink: 0;
+  transform: translateY(-3px);
 }
 
 
@@ -293,22 +296,34 @@
   margin-left: 0;
 
   min-width: 73px;
-  height: 31px;
-  padding: 0 18px;
+  height: 32px;
+  padding: 0 16px;
 
-  border: 1.5px solid #9b7373;
+  border: 1.3px solid #36080A;
   border-radius: 999px;
   background: #ffffff;
-  color: #6e5050;
+  color: #36080A;
 
   display: block;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 20px;
   cursor: pointer;
 }
 
 .loadMoreButton:hover {
   background: #fbf4f1;
+}
+@media (max-width: 1599px) {
+  .inner {
+    width: calc(100% - 180px);
+  }
+}
+
+@media (max-width: 1200px) {
+  .inner {
+    width: calc(100% - 80px);
+  }
 }
 
 @media (max-width: 900px) {
@@ -372,8 +387,8 @@
 }
 
 .arrowImage {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   object-fit: contain;
   display: block;
 }

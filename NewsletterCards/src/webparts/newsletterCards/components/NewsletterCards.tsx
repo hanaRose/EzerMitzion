@@ -54,11 +54,26 @@ const NewsletterCards: React.FC<INewsletterCardsProps> = (props) => {
   return (
     <section className={styles.newsletterWrapper} dir="rtl">
       <div className={styles.inner}>
-        <h2 className={styles.title}>ניוזלטר ארגוני | כמה מילים...</h2>
+        <h2 className={styles.title}>ניוזליטר ארגוני | כמה מילים...</h2>
 
         <div className={styles.cardsList}>
-          {items.slice(0, visibleCount).map((item) => (
-            <article className={styles.card} key={item.id}>
+          {items.slice(0, visibleCount).map((item) => {
+            const isKamaMilimCard = item.title?.trim() === 'כמה מילים';
+
+            const cardTitle = isKamaMilimCard
+              ? item.descriptionLine1
+              : item.title;
+
+            const cardDescriptionLine1 = isKamaMilimCard
+              ? item.descriptionLine2
+              : item.descriptionLine1;
+
+            const cardDescriptionLine2 = isKamaMilimCard
+              ? ''
+              : item.descriptionLine2;
+
+            return (
+              <article className={styles.card} key={item.id}>
               <div className={styles.imageArea}>
                 {item.imageUrl && <img src={item.imageUrl} alt={item.title} />}
               </div>
@@ -77,11 +92,15 @@ const NewsletterCards: React.FC<INewsletterCardsProps> = (props) => {
               </div>
 
               <div className={styles.contentArea}>
-                <h3>{item.title}</h3>
+                <h3>{cardTitle}</h3>
                 <p>
-                  {item.descriptionLine1}
-                  <br />
-                  {item.descriptionLine2}
+                  {cardDescriptionLine1}
+                  {cardDescriptionLine2 && (
+                    <>
+                      <br />
+                      {cardDescriptionLine2}
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -96,7 +115,8 @@ const NewsletterCards: React.FC<INewsletterCardsProps> = (props) => {
                 <span>לצפייה</span>
               </a>
             </article>
-          ))}
+              );
+            })}
         </div>
 
         {visibleCount < items.length && (
