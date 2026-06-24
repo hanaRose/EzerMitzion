@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "employees-directory-client-side-solution",
+    "id": "0d95f869-96d0-4df8-9fbf-fc433dfbd3fc",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.22.2"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "employees-directory description"
+      },
+      "longDescription": {
+        "default": "employees-directory description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "employees-directory Feature",
+        "description": "The feature that activates elements of the employees-directory solution.",
+        "id": "03b3373d-cd92-4f72-9b4b-bcb3f77ccdfa",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/employees-directory.sppkg"
+  }
+}

@@ -1,4 +1,57 @@
 @font-face {
+  font-family: 'FTPILKAHOL2';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/FTPILKAHOL21.TTF')
+    format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RutzOE';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OELig_0.ttf')
+    format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RutzOE';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEReg_0.ttf')
+    format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RutzOE';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEMed_0.ttf')
+    format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RutzOE';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEBol_0.ttf')
+    format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RutzOE';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEHea_0.ttf')
+    format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
   font-family: "Almoni Neue DL 4.0 AAA";
   src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff2") format("woff2"),
        url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff") format("woff");
@@ -80,6 +133,7 @@
   color: #4c2b2b;
   letter-spacing: 0.2px;
   position: relative;
+  font-family: 'FTPILKAHOL2', Arial, sans-serif;
 }
 
 /*
@@ -191,6 +245,7 @@
 
 .dateText div {
   white-space: nowrap;
+  font-family: 'FTPILKAHOL2', Arial, sans-serif;
 }
 
 .smallUnderline {
