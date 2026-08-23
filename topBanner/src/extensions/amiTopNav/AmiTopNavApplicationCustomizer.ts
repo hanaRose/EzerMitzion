@@ -5,6 +5,10 @@ import {
   PlaceholderName
 } from '@microsoft/sp-application-base';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
+import { spfi, SPFx, SPFI } from '@pnp/sp';
+import '@pnp/sp/webs';
+import '@pnp/sp/lists';
+import '@pnp/sp/items';
 import styles from './AmiTopNavApplicationCustomizer.module.scss';
 
 interface ITopNavItem {
@@ -23,9 +27,13 @@ export default class AmiTopNavApplicationCustomizer
   private _isCommandBarVisible: boolean = false;
   private _commandBarObserver: MutationObserver | undefined;
   private _isCommandBarShortcutBound: boolean = false;
+  private readonly _topBannerSettingsListAbsoluteUrl: string = '/sites/portal/Lists/OrgSiteLinkButton';
+  private _sp: SPFI | undefined;
 
   @override
   public onInit(): Promise<void> {
+    this._sp = spfi().using(SPFx(this.context));
+
     this.context.placeholderProvider.changedEvent.add(this, this._renderTopNav);
     void this._renderTopNav();
 
@@ -50,6 +58,8 @@ export default class AmiTopNavApplicationCustomizer
     const logoUrl =
       this.properties.logoUrl ||
       'https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/image.png';
+
+    const organizationSiteUrl = await this._loadOrganizationSiteUrlFromSettingsList();
 
     const navItems = await this._waitForExistingNavigationItems();
     const visibleNavItems = navItems.slice(0, 5);
@@ -102,7 +112,7 @@ export default class AmiTopNavApplicationCustomizer
           }
         </nav>
 
-        <a class="${styles.mainButton}" href="${this.context.pageContext.web.absoluteUrl}">
+        <a class="${styles.mainButton}" href="${this._escapeHtml(organizationSiteUrl)}">
           למעבר לאתר הארגון
         </a>
         <button class="${styles.hamburger}" type="button" data-ami-hamburger-button="true" aria-label="פתיחת תפריט">
@@ -120,6 +130,24 @@ export default class AmiTopNavApplicationCustomizer
     this._setupCommandBarShortcut();
   }
 
+private async _loadOrganizationSiteUrlFromSettingsList(): Promise<string> {
+  const fallbackUrl = this.context.pageContext.web.absoluteUrl;
+ if (!this._sp) {
+    return fallbackUrl;
+  }
+  try {
+    const items = await this._sp.web.getList(this._topBannerSettingsListAbsoluteUrl)
+      .items.select('OrgSiteUrl')
+      .top(1)();
+
+    const orgSiteUrl = items[0]?.OrgSiteUrl?.Url?.trim();
+    return orgSiteUrl || fallbackUrl;
+
+  } catch (error) {
+    console.warn('שגיאה בטעינת הקישור מהרשימה', error);
+    return fallbackUrl;
+  }
+}
  private async _waitForExistingNavigationItems(): Promise<ITopNavItem[]> {
   const menuStateItems = await this._loadNavigationFromMenuStateApi();
 
