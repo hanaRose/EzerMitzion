@@ -1,0 +1,19 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "useGulp": false,
+    "plusBeta": false,
+    "isCreatingSolution": false,
+    "nodeVersion": "22.14.0",
+    "sdksVersions": {},
+    "version": "1.22.2",
+    "libraryName": "subject-cards",
+    "libraryId": "602af151-b726-4910-9dc7-687707c0cfae",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "subject-cards",
+    "solutionShortDescription": "subject-cards description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

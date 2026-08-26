@@ -1,0 +1,18 @@
+ {
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "subject-cards-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/subjectCards/SubjectCardsWebPart.js",
+          "manifest": "./src/webparts/subjectCards/SubjectCardsWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SubjectCardsWebPartStrings": "lib/webparts/subjectCards/loc/{locale}.js"
+  }
+}
