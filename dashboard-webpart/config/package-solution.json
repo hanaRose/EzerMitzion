@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "dashboard-webpart-client-side-solution",
+    "id": "5742cd2d-45ed-4617-9932-4927a51bb295",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.22.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "dashboard-webpart description"
+      },
+      "longDescription": {
+        "default": "dashboard-webpart description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "dashboard-webpart Feature",
+        "description": "The feature that activates elements of the dashboard-webpart solution.",
+        "id": "7fbaf578-e023-4fed-bb65-d7700d60a288",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/dashboard-webpart.sppkg"
+  }
+}

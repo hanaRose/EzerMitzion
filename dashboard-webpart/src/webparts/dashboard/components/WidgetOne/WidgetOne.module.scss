@@ -1,0 +1,312 @@
+  @font-face {
+  font-family: "Rutz OE";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEReg_0.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "FtPilKahol";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/FTPILKAHOL2%201.TTF") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Almoni Neue DL";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Almoni Neue DL";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-medium-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-medium-aaa.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Almoni Neue DL";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+
+.wrapper {
+background: transparent;
+    box-sizing: border-box;
+    font-family: Almoni Neue DL, Arial, sans-serif;
+    max-width: 1600px;
+    padding: 44px 32px;
+    width: 110%;
+    margin: 0 auto
+}
+
+ 
+
+.handwriting {
+  font-family: "FtPilKahol", serif;
+  font-style: normal;
+  font-size: 40px;
+  color: #36080A;
+  display: block;
+  margin-bottom: -25px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: "Rutz OE", serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #36080A;
+}
+
+.header {
+  text-align: right;     
+  max-width: 1222px;      
+  margin: 0 auto 20px auto;  
+}
+
+.underline {
+  width: 38px;
+  height: 3px;
+  background: #ff947c;
+  margin-top: 8px;
+  margin-right: 0;       
+  margin-left: auto;      
+  border-radius: 999px;
+  transform: rotate(-4deg);
+  text-align: right;
+}
+
+.grid {
+  display: grid;
+   
+  grid-template-columns: repeat(3, minmax(250px, 1fr)); 
+  gap: 20px;
+  max-width: 1222px;  
+  margin: 0 auto;
+  direction: rtl;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border: 2.2px solid #d4c8c4;
+  border-radius: 15px;
+  cursor: pointer;
+  min-height: 90px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #C0272D;
+    box-shadow: 0 2px 8px rgba(192, 39, 45, 0.15);
+  }
+
+  &.highlighted {
+    border-color: #C0272D;
+    border-width: 2px;
+
+    .cardTitle {
+      color: #36080A;
+      text-align: right;
+      width: 100%;
+      direction: rtl;
+    }
+
+    .cardSubTitle {
+      color: #36080A;
+      text-align: right;
+    }
+  }
+
+  &.large {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    grid-row: 1 / 3;
+    grid-column: 3;
+    justify-content: center;
+    align-items: center;
+
+    .cardContent {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      direction: rtl;
+      transform: translateX(39px);
+    }
+
+    .icon {
+      width: 75px;
+      height: 75px;
+      margin-left: 25px;
+    }
+
+    .cardTitle {
+      font-size: 24px;
+      text-align: right;
+      width: 80px;
+      white-space: normal;
+      line-height: 24px;
+    }
+  }
+}
+
+.icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  width: fit-content;
+  direction: rtl;
+}
+
+.cardTitle {
+  font-family: "Almoni Neue DL", "Arial", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 24px;
+  text-align: right;
+  color: #36080A;
+}
+
+.cardSubTitle {
+  font-family: "Almoni Neue DL", "Arial", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 22px;
+  text-align: right;
+  width: 100%;
+  color: #36080A;
+}
+
+.status {
+  padding: 16px;
+  color: #666;
+  text-align: right;
+}
+
+@media (min-width: 555px) and (max-width: 1000px) {
+  .wrapper {
+    padding: 24px 20px;
+     
+   width:100%;
+    max-width:900px;
+    margin:0 auto;
+  }
+
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .card.large {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+    width: 100% !important;
+    max-width: unset !important;
+    min-width: unset !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #ffffff;
+    border: 2.2px solid #d4c8c4;
+    border-radius: 15px;
+    cursor: pointer;
+    min-height: 90px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    direction: ltr;
+
+    .cardContent {
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: fit-content;
+    }
+
+    .cardTitle {
+      font-size: 22px;
+      text-align: center;
+      width: auto;
+    }
+
+    .icon {
+      width: 60px;
+      height: 60px;
+      margin: 0;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 20px 16px;
+    width:100%;
+    margin:0 auto;
+    max-width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+    margin: 0;
+    
+  }
+
+  .card {
+    &.large {
+      width: auto !important;
+      min-width: unset !important;
+      max-width: unset !important;
+      grid-row: auto !important;
+      grid-column: auto !important;
+      justify-content: flex-start !important;
+      align-items: stretch !important;
+      min-height: 90px;
+
+      .cardContent {
+        align-items: flex-end !important;
+        transform: none !important;
+        justify-content: flex-start !important;
+        width: fit-content !important;
+      }
+      .cardTitle {
+        font-size: 24px !important;
+        text-align: right !important;
+        width: auto !important;
+      }
+      .icon {
+        width: 56px !important;
+        height: 56px !important;
+        margin-left: auto !important;
+      }
+    }
+  }
+}
