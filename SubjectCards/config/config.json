@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "subject-cards-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/subjectCards/SubjectCardsWebPart.js",
+          "manifest": "./src/webparts/subjectCards/SubjectCardsWebPart.manifest.json"
+        }
+      ]
+    },
+    "quick-links-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/quickLinks/QuickLinksWebPart.js",
+          "manifest": "./src/webparts/quickLinks/QuickLinksWebPart.manifest.json"
+        }
+      ]
+    },
+    "additionl-info-button-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/additionlInfoButton/AdditionlInfoButtonWebPart.js",
+          "manifest": "./src/webparts/additionlInfoButton/AdditionlInfoButtonWebPart.manifest.json"
+        }
+      ]
+    },
+    "search-results-title-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/searchResultsTitle/SearchResultsTitleWebPart.js",
+          "manifest": "./src/webparts/searchResultsTitle/SearchResultsTitleWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SubjectCardsWebPartStrings": "lib/webparts/subjectCards/loc/{locale}.js",
+    "QuickLinksWebPartStrings": "lib/webparts/quickLinks/loc/{locale}.js",
+    "AdditionlInfoButtonWebPartStrings": "lib/webparts/additionlInfoButton/loc/{locale}.js",
+    "SearchResultsTitleWebPartStrings": "lib/webparts/searchResultsTitle/loc/{locale}.js"
+  }
+}
