@@ -1,4 +1,4 @@
-import { override } from '@microsoft/decorators';
+ import { override } from '@microsoft/decorators';
 import {
   BaseApplicationCustomizer,
   PlaceholderContent,
@@ -9,8 +9,7 @@ import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@micro
 import styles from './FooterApplicationCustomizer.module.scss';
 
 export interface IFooterApplicationCustomizerProperties {
-  // Add properties if needed
-  listName?: string; // Optional: override default list name
+  listName?: string;
 }
 
 interface IFooterLink {
@@ -30,7 +29,6 @@ export default class FooterApplicationCustomizer
   private _observer: MutationObserver | null = null;
   private _footerRendered: any;
 
-  //@override
   public async onInit(): Promise<void> {
     console.log('=== FOOTER INIT START ===');
     console.log('innerWidth:', window.innerWidth);
@@ -38,7 +36,6 @@ export default class FooterApplicationCustomizer
 
     this._listName = this.properties.listName || 'FooterLinks';
     await this._ensureListExists();
-    //await this._loadFooterLinks();
     this._loadFontAwesome();
 
     const style = document.createElement('style');
@@ -52,8 +49,6 @@ export default class FooterApplicationCustomizer
     right: auto !important;
   }
 
-  /* SharePoint mobile wraps body children in a fixed scroll container */
-  /* We need to move the footer INSIDE the scroll container, not body */
   [class*="scrollableContent"] #custom-spfx-footer,
   [class*="ms-ScrollablePane"] #custom-spfx-footer {
     position: relative !important;
@@ -62,8 +57,6 @@ export default class FooterApplicationCustomizer
     this.context.placeholderProvider.changedEvent.add(this, this._renderPlaceHolders);
     this._renderPlaceHolders();
 
-
-    // TEMP DIAGNOSTIC
     setTimeout(() => {
       console.log('=== MOBILE DIAGNOSTIC (3s after init) ===');
       console.log('_footerRendered:', this._footerRendered);
@@ -83,7 +76,6 @@ export default class FooterApplicationCustomizer
         console.log('footer innerHTML length:', footer.innerHTML.length);
       }
 
-      // Log last 5 body children to see where footer landed
       const children = Array.from(document.body.children);
       console.log('Total body children:', children.length);
       children.slice(-5).forEach((el, i) => {
@@ -97,9 +89,7 @@ export default class FooterApplicationCustomizer
     return Promise.resolve();
   }
 
-
   private _loadFontAwesome(): void {
-    // Check if Font Awesome is already loaded
     if (!document.querySelector('link[href*="font-awesome"]')) {
       const fontAwesomeLink = document.createElement('link');
       fontAwesomeLink.rel = 'stylesheet';
@@ -114,7 +104,6 @@ export default class FooterApplicationCustomizer
     try {
       console.log(`Checking if list '${this._listName}' exists...`);
 
-      // Try to get the list
       const response: SPHttpClientResponse = await this.context.spHttpClient.get(
         `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${this._listName}')`,
         SPHttpClient.configurations.v1
@@ -125,13 +114,11 @@ export default class FooterApplicationCustomizer
         return;
       }
 
-      // List doesn't exist, create it
       console.log(`List '${this._listName}' not found. Creating...`);
       await this._createList();
 
     } catch (error) {
       console.error('Error checking list existence:', error);
-      // If there's an error, try to create the list anyway
       await this._createList();
     }
   }
@@ -141,7 +128,6 @@ export default class FooterApplicationCustomizer
 
     const webUrl = this.context.pageContext.web.absoluteUrl;
 
-    // Create the list
     await this.context.spHttpClient.post(
       `${webUrl}/_api/web/lists`,
       SPHttpClient.configurations.v1,
@@ -157,7 +143,6 @@ export default class FooterApplicationCustomizer
 
     console.log(`List '${this._listName}' created.`);
 
-    // Add custom columns
     const columns = [
       { FieldTypeKind: 2, Title: 'PageUrl' },
       { FieldTypeKind: 8, Title: 'IsActive' },
@@ -198,13 +183,11 @@ export default class FooterApplicationCustomizer
   }
 
   private _renderPlaceHolders(): void {
-    // ✅ Hard guard first - absolutely nothing runs if already rendered
     if (this._footerRendered) {
       console.log('Footer already rendered, skipping');
       return;
     }
 
-    // ✅ Also check DOM directly in case flag got out of sync
     if (document.getElementById('custom-spfx-footer')) {
       console.log('Footer div already in DOM, skipping');
       this._footerRendered = true;
@@ -219,7 +202,7 @@ export default class FooterApplicationCustomizer
     console.log("megaFooter", megaFooter);
     if (megaFooter) {
       console.log('megaFooter found immediately');
-      this._footerRendered = true; // ✅ Set BEFORE rendering
+      this._footerRendered = true;
       this._replaceMegaFooter(megaFooter as HTMLElement);
       return;
     }
@@ -228,7 +211,7 @@ export default class FooterApplicationCustomizer
 
     if (isMobile) {
       console.log('Mobile: appending footer to body');
-      this._footerRendered = true; // ✅ Set BEFORE DOM manipulation
+      this._footerRendered = true;
       const footerDiv = document.createElement('div');
       footerDiv.id = 'custom-spfx-footer';
       footerDiv.style.cssText = 'position:relative;width:100%;height:auto;display:block;clear:both;box-sizing:border-box;';
@@ -237,19 +220,16 @@ export default class FooterApplicationCustomizer
       return;
     }
 
-    // Desktop: megaFooter not found yet, try observer + timeout fallback
     console.log('Desktop: starting observer + timeout fallback');
     this._observeForMegaFooter();
   }
 
   private _observeForMegaFooter(): void {
     console.log("_observeForMegaFooter");
-    // Disconnect any existing observer
     if (this._observer) {
       this._observer.disconnect();
     }
 
-    // Create a MutationObserver to watch for the megaFooter element
     this._observer = new MutationObserver((mutations) => {
       const megaFooter = document.querySelector('[class^="simpleFooterContainer"]') ||
         document.querySelector('[class*="simpleFooterContainer"]');
@@ -258,7 +238,6 @@ export default class FooterApplicationCustomizer
         console.log("megafooter detected by observer", megaFooter);
         this._replaceMegaFooter(megaFooter as HTMLElement);
 
-        // Disconnect observer once we've found and replaced the footer
         if (this._observer) {
           this._observer.disconnect();
           this._observer = null;
@@ -266,7 +245,6 @@ export default class FooterApplicationCustomizer
       }
     });
 
-    // Start observing the document body for child additions
     this._observer.observe(document.body, {
       childList: true,
       subtree: true
@@ -274,59 +252,6 @@ export default class FooterApplicationCustomizer
 
     console.log("MutationObserver started watching for megaFooter");
   }
-
-  //   private _replaceMegaFooter(megaFooter: HTMLElement): void {
-  //     console.log("_replaceMegaFooter", megaFooter);
-  //     megaFooter.innerHTML = `  
-  //         <div class="${styles.footer}">
-
-  //     <div class="${styles.footerContainer}">
-  //         <div class="${styles.footerTop}">
-  //             <div class="${styles.footerLogo}">
-  //                 <img src="https://taglitbri.sharepoint.com/sites/TE-Portal/SiteAssets/TaglitLogo.png"
-  //                     alt="Company Logo" />
-  //             </div>
-
-  //             <div>
-  //                 <div class="${styles.socialIcons}">
-
-  //                     <a href="https://www.tiktok.com/tag/taglit" target="_blank" rel="noopener noreferrer"
-  //                         class="${styles.socialLink}" aria-label="TikTok">
-  //                         <i class="fab fa-tiktok"></i>
-  //                     </a>
-  //                     <a href="https://www.instagram.com/birthrightisrael/" target="_blank" rel="noopener noreferrer"
-  //                         class="${styles.socialLink}" aria-label="Instagram">
-  //                         <i class="fab fa-instagram"></i>
-  //                     </a>
-  //                     <a href="https://www.youtube.com/@TaglitIsrael" target="_blank" rel="noopener noreferrer"
-  //                         class="${styles.socialLink}" aria-label="YouTube">
-  //                         <i class="fab fa-youtube"></i>
-  //                     </a>
-  //                     <a href="https://www.facebook.com/TaglitBRIL" target="_blank" rel="noopener noreferrer"
-  //                         class="${styles.socialLink}" aria-label="Facebook">
-  //                         <i class="fab fa-facebook-f"></i>
-  //                     </a>
-  //                 </div>
-  //             </div>
-  //         </div>
-
-  //         <div class="${styles.footerBottom}">
-
-  //         <!-- Links Section -->
-  //         <div class="${styles.footerLinks}">
-  //        ${this._generateFooterLinks()}
-  //         </div>
-
-  //          <div class="${styles.footerText}">
-  //             <p>כל הזכויות שמרות תגלית מפגשים ${new Date().getFullYear()} ©</p>
-  //         </div>
-
-  //         </div>
-  //     </div>
-  // </div>
-  //         `;
-  //     console.log("megaFooter content replaced successfully");
-  //   }
 
   private _replaceMegaFooter(megaFooter: HTMLElement): void {
     console.log("_replaceMegaFooter", megaFooter);
@@ -338,10 +263,9 @@ export default class FooterApplicationCustomizer
         <!-- Right: Brand + Contact Info -->
         <div class="${styles.footerRight}">
           <div class="${styles.brandBlock}">
-          <img src='https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/Footer%2FEMFooterImage%2EJPG' />
-                    </div>
+            <img src='https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/Footer%2FEMFooterImage%2EJPG' />
+          </div>
           <div class="${styles.contactBlock}">
-
             <div class="${styles.contactItem}">
               <img class="${styles.detailIcon}" src='https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/Footer/mapIcon.JPG'>
               <span>הרב רבינוב 5, בני ברק</span>
@@ -365,30 +289,46 @@ export default class FooterApplicationCustomizer
         <div class="${styles.footerLeft}">
           <p class="${styles.newsletterTitle}">הירשמו לניוזלטר שלנו וקבלו עידכונים</p>
           <div class="${styles.newsletterForm}">
-            <input type="email" placeholder="אימייל" class="${styles.newsletterInput}" />
-                     </div>
-          <button 
-    id="newsletter-btn"
-    class="${styles.newsletterButton}"
-    onclick="this._registerNewsletter()">שליחה</button>
+            <input type="email" id="newsletter-input" placeholder="אימייל" class="${styles.newsletterInput}" />
+          </div>
+          <button id="newsletter-btn" class="${styles.newsletterButton}">שליחה</button>
         </div>
 
       </div>
     </div>
   `;
+
+    const btn = document.getElementById('newsletter-btn');
+    if (btn) {
+      btn.addEventListener('click', () => this._registerNewsletter());
+    }
+
     console.log("megaFooter content replaced successfully");
   }
 
   private async _registerNewsletter(): Promise<void> {
     console.log("_registerNewsletter");
-     let valElem = document.getElementById('newsletter-input') as HTMLInputElement; 
-     let email = valElem.value;
-     console.log("email", email);
-    let button = document.getElementById('newsletter-btn') as HTMLButtonElement;
-    let input = document.getElementById('newsletter-input') as HTMLInputElement;
+    const valElem = document.getElementById('newsletter-input') as HTMLInputElement;
+    const email = valElem.value;
+    console.log("email", email);
+    const button = document.getElementById('newsletter-btn') as HTMLButtonElement;
+    const input = document.getElementById('newsletter-input') as HTMLInputElement;
 
     if (!email || !email.trim()) {
       input.style.borderColor = '#8b2020';
+      return;
+    }
+
+    // ✅ בדיקת תקינות אימייל
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      input.style.borderColor = '#8b2020';
+      input.placeholder = 'אימייל לא תקין';
+      input.value = '';
+      setTimeout(() => {
+        input.style.borderColor = '';
+        input.placeholder = 'אימייל';
+      }, 3000);
       return;
     }
 
@@ -409,6 +349,9 @@ export default class FooterApplicationCustomizer
         button.textContent = '✓';
         input.value = '';
         input.placeholder = 'תודה!';
+        setTimeout(() => {
+          input.placeholder = 'אימייל';
+        }, 3000);
       } else {
         button.textContent = '✗';
         console.error('Newsletter registration failed:', response.statusText);
@@ -443,7 +386,6 @@ export default class FooterApplicationCustomizer
   private _onDispose(): void {
     console.log('Footer disposed');
 
-    // Clean up observer when extension is disposed
     if (this._observer) {
       this._observer.disconnect();
       this._observer = null;

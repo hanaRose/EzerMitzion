@@ -1,0 +1,199 @@
+@font-face {
+  font-family: "FtPilKahol";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/FTPILKAHOL2%201.TTF") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Rutz OE";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEReg_0.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Almoni Neue DL AAA';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff2') format('woff2'),
+       url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Almoni Neue DL AAA';
+  src: url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff2') format('woff2'),
+       url('https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-bold-aaa.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+.wrapper {
+  background: linear-gradient(135deg, #ffe8e0, #ebccc1 50%, #f8ebe5);
+  box-sizing: border-box;
+  font-family: "Rutz OE", Arial, sans-serif;
+  padding: 16px 35px 36px 35px;
+  border-radius: 25px;
+  width: fit-content;
+  min-width: 550px;
+  max-width: 550px;
+  margin:32px 0 0 auto;
+  margin-right: 112px;
+  
+}
+
+.header {
+  text-align: right;
+  margin-bottom: 19px;
+  margin-right: 18px;
+}
+
+.handwriting {
+  font-family: "FtPilKahol", serif;
+  font-style: normal;
+  font-size: 40px;
+  color: #36080A;
+  display: block;
+  margin-bottom: -32px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: "Rutz OE", serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: #36080A;
+}
+
+ 
+
+.smallUnderline {
+  width: 50px;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: #ff927c;
+  transform: rotate(-4deg);
+}
+
+.list {
+  padding: 0 19px;
+  max-height: 307px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+  scrollbar-width: thin;
+  scrollbar-color: #d4a090 transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background-color: #d4a090; border-radius: 4px; }
+}
+
+.card {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 7px 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: none;
+  min-height: 44px;
+  gap: 10px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex: 1;
+  direction: rtl;
+}
+
+.cardTitle {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Almoni Neue DL AAA', Arial, sans-serif;
+  color: #36080A;
+  text-align: right;
+  width: 100%;
+  line-height: 1.3;
+}
+
+.cardSubTitle {
+  font-size: 16px;
+  font-weight: 400;
+  font-family: 'Almoni Neue DL AAA', Arial, sans-serif;
+  color: #121212;
+  text-align: right;
+  width: 100%;
+  line-height: 1.2;
+}
+
+.icon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.status {
+  padding: 16px;
+  color: #666;
+  text-align: right;
+}
+
+@media (min-width: 481px) and (max-width: 1280px) {
+  .wrapper {
+    width: 100%;
+    min-width: unset !important;
+    max-width: 100%;
+    border-radius: 20px;
+    padding: 16px 20px;
+    margin: 0;
+  }
+
+  .list {
+    max-height: 307px;
+    overflow-y: auto;
+    padding: 0 12px;
+    gap: 14px;
+  }
+
+  .card {
+    min-height: 55px;
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    width: 100% !important;
+    min-width: unset !important;
+    max-width: 100% !important;
+    border-radius: 20px;
+    padding: 16px 20px;
+    margin: 0 !important;
+  }
+
+  .list {
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 0 8px;
+    gap: 12px;
+  }
+
+  .card {
+    min-height: 60px;
+    padding: 10px 12px;
+  }
+}

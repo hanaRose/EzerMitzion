@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "site-hero-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/siteHero/SiteHeroWebPart.js",
+          "manifest": "./src/webparts/siteHero/SiteHeroWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SiteHeroWebPartStrings": "lib/webparts/siteHero/loc/{locale}.js"
+  }
+}

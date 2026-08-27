@@ -1,0 +1,31 @@
+  .wrapper {
+  display: flex;
+  gap: 9%;
+  width: 94%;
+  box-sizing: border-box;
+  align-items: flex-start;
+  justify-content: center;
+  direction: rtl;
+}
+
+.one {
+  flex: 0 0 auto;
+}
+
+.two {
+  flex: 0 0 500px;
+  min-width: 0;
+}
+
+@media (max-width: 1500px) {
+  .wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .one,
+  .two {
+    width: 100%;
+  }
+}

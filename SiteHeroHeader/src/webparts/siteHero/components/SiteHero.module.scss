@@ -1,0 +1,179 @@
+ /* ===== Fonts ===== */
+
+@font-face {
+  font-family: "Rutz OE";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/Rutz_OEReg_0.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Almoni Neue DL";
+  src: url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff2") format("woff2"),
+       url("https://ezermizionil.sharepoint.com/sites/portal/SiteAssets/fonts/almoni-regular-aaa.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* ===== Base ===== */
+
+.header {
+  box-sizing: border-box;
+
+  width: 100vw;
+  max-width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  padding: 30px 0;
+  height: 280px;
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  border: 0 solid #fbfdff;
+
+  overflow: hidden;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  gap: 0px;
+
+  width: 100%;
+  max-width: 1140px;
+  height: auto;
+
+  text-align: center;
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+}
+
+.logo {
+  width: 280px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.title {
+  margin: 0;
+  width: 100%;
+  height: auto;
+
+  font-family: "Rutz OE", serif;
+  font-style: normal;
+  font-weight: 200;
+  font-size: 55px;
+  line-height: 38px;
+
+  text-align: center;
+  color: hsl(0, 0%, 100%);
+
+  white-space: normal;
+  overflow: visible;
+     font-weight: 200;
+  font-stretch: 75%;  
+  margin-bottom: 8px;
+
+}
+
+.subtitle {
+  margin: 0;
+  width: 100%;
+  height: auto;
+
+  font-family: "Almoni Neue DL", "Arial", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 46px;
+  line-height: 18px;
+  letter-spacing: 0px;
+
+  text-align: center;
+  color: rgba(255, 255, 255, 0.9);
+
+  white-space: normal;
+  overflow: visible;
+  margin-top: 24px;
+}
+
+.button {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0 24px;
+  gap: 8px;
+
+  width: auto;
+  height: 48px;
+
+  background: #ffffff;
+  border-radius: 999px;
+
+  color: #C0272D;
+  text-decoration: none;
+
+  font-family: "Almoni Neue DL", "Arial", sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 150%;
+}
+
+.message {
+  display: none;
+}
+
+/* ===== 1441–1920 ===== */
+@media (min-width: 1441px) and (max-width: 1920px) {
+  .header { height: 280px; padding: 30px 0; }
+  .container { max-width: 1272px; }
+  .title { font-size: 55px; margin-bottom: 8px; }
+  .subtitle { font-size: 30px; }
+}
+
+/* ===== 769–1280 ===== */
+@media (min-width: 769px) and (max-width: 1280px) {
+  .header { height: 260px; padding: 30px 0; }
+  .container { max-width: 900px; }
+  .logo { width: 240px; height: 40px; }
+  .title { font-size: 44px; margin-bottom: 8px; }
+  .subtitle { font-size: 27px; }
+}
+
+/* ===== 481–768 ===== */
+@media (min-width: 481px) and (max-width: 768px) {
+  .header { height: 240px; padding: 24px 0; }
+  .container { max-width: 688px; }
+  .logo { width: 200px; height: 36px; }
+  .title { font-size: 36px; margin-bottom: 8px; }
+  .subtitle { font-size: 27px; }
+}
+
+/* ===== עד 480 ===== */
+@media (max-width: 480px) {
+  .header { height: 200px; padding: 20px 0; }
+  .logo { width: 160px; height: 28px; }
+  .title { font-size: 28px; margin-bottom: 8px; }
+  .subtitle { font-size: 25px; }
+  .button { font-size: 12px; height: 40px; }
+}

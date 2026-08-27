@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "site-hero-header-client-side-solution",
+    "id": "c91570ac-5d5c-41cc-a5a5-ea5e0280cf5a",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "site-hero-header description"
+      },
+      "longDescription": {
+        "default": "site-hero-header description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "site-hero-header Feature",
+        "description": "The feature that activates elements of the site-hero-header solution.",
+        "id": "c2b8ace1-b62c-4133-88fb-abbd22b2e5af",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/site-hero-header.sppkg"
+  }
+}
