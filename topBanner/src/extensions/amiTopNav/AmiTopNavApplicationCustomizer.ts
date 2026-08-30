@@ -125,6 +125,14 @@ export default class AmiTopNavApplicationCustomizer
       </header>
     `;
 
+
+    const mainContent = document.querySelector(
+      'section.mainContent'
+    ) as HTMLElement | null;
+
+    if (mainContent) {
+      mainContent.style.marginTop = '-26px';
+    }
     this._hideOriginalSharePointNavigation();
     this._bindMoreMenuEvents();
     this._setupCommandBarShortcut();
