@@ -33,6 +33,7 @@ export default class AmiTopNavApplicationCustomizer
   @override
   public onInit(): Promise<void> {
     this._sp = spfi().using(SPFx(this.context));
+    this._applyReadableActionColors();
 
     this.context.placeholderProvider.changedEvent.add(this, this._renderTopNav);
     this.context.application.navigatedEvent.add(
@@ -328,6 +329,67 @@ private async _loadNavigationFromMenuStateApi(): Promise<ITopNavItem[]> {
     });
 
     return items;
+  }
+
+    private _applyReadableActionColors(): void {
+    const styleId = 'ami-readable-action-colors';
+
+    if (document.getElementById(styleId)) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = styleId;
+
+    style.textContent = `
+      :root,
+      .fui-FluentProvider {
+        --ms-palette-themePrimary: #756b65 !important;
+        --ms-palette-themeDarkAlt: #6a605a !important;
+        --ms-palette-themeDark: #5d544f !important;
+        --ms-palette-themeDarker: #4d4541 !important;
+
+        --colorBrandBackground: #756b65 !important;
+        --colorBrandBackgroundHover: #6a605a !important;
+        --colorBrandBackgroundPressed: #5d544f !important;
+        --colorBrandBackgroundSelected: #625953 !important;
+        --colorBrandBackgroundStatic: #756b65 !important;
+
+        --colorCompoundBrandBackground: #756b65 !important;
+        --colorCompoundBrandBackgroundHover: #6a605a !important;
+        --colorCompoundBrandBackgroundPressed: #5d544f !important;
+
+        --colorBrandForegroundLink: #756b65 !important;
+        --colorBrandForegroundLinkHover: #625953 !important;
+        --colorBrandForegroundLinkPressed: #4d4541 !important;
+        --colorBrandForegroundLinkSelected: #5d544f !important;
+
+        --colorBrandForegroundOnLight: #756b65 !important;
+        --colorBrandForegroundOnLightHover: #625953 !important;
+        --colorBrandForegroundOnLightPressed: #4d4541 !important;
+        --colorBrandForegroundOnLightSelected: #5d544f !important;
+      }
+
+      button.ms-Button--primary:not(:disabled):not([aria-disabled="true"]),
+      a.ms-Button--primary:not([aria-disabled="true"]) {
+        background-color: #756b65 !important;
+        border-color: #756b65 !important;
+      }
+
+      button.ms-Button--primary:not(:disabled):not([aria-disabled="true"]):hover,
+      a.ms-Button--primary:not([aria-disabled="true"]):hover {
+        background-color: #6a605a !important;
+        border-color: #6a605a !important;
+      }
+
+      button.ms-Button--primary:not(:disabled):not([aria-disabled="true"]):active,
+      a.ms-Button--primary:not([aria-disabled="true"]):active {
+        background-color: #5d544f !important;
+        border-color: #5d544f !important;
+      }
+    `;
+
+    document.head.appendChild(style);
   }
 
   private _hideOriginalSharePointNavigation(): void {
