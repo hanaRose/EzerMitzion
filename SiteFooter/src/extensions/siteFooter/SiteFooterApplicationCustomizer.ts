@@ -42,6 +42,10 @@ export default class FooterApplicationCustomizer
   }
 `;
     this.context.placeholderProvider.changedEvent.add(this, this._renderPlaceHolders);
+    this.context.application.navigatedEvent.add(
+    this,
+    this._handleNavigation
+  );
     this._renderPlaceHolders();
 
     setTimeout(() => {
@@ -86,6 +90,19 @@ export default class FooterApplicationCustomizer
       console.log('Font Awesome loaded');
     }
   }
+
+  private _handleNavigation(): void {
+  if (this._observer) {
+    this._observer.disconnect();
+    this._observer = null;
+  }
+
+  this._footerRendered = false;
+
+  window.setTimeout(() => {
+    this._renderPlaceHolders();
+  }, 100);
+}
 
   private _renderPlaceHolders(): void {
     if (this._footerRendered) {
@@ -160,6 +177,8 @@ export default class FooterApplicationCustomizer
 
   private _replaceMegaFooter(megaFooter: HTMLElement): void {
     console.log("_replaceMegaFooter", megaFooter);
+    megaFooter.id = 'custom-spfx-footer';
+    this._footerRendered = true;
     megaFooter.innerHTML = `
     <div class="${styles.footer}">  
     </div>
@@ -272,7 +291,16 @@ export default class FooterApplicationCustomizer
     }, 3000);
   }
 
-  private _onDispose(): void {
+  public onDispose(): void {
+  this.context.placeholderProvider.changedEvent.remove(
+    this,
+    this._renderPlaceHolders
+  );
+
+  this.context.application.navigatedEvent.remove(
+    this,
+    this._handleNavigation
+  );
     console.log('Footer disposed');
 
     if (this._observer) {
