@@ -3,7 +3,7 @@
   "solution": {
     "name": "site-footer-client-side-solution",
     "id": "029f039a-cf3d-4d28-87c7-704faf3e1302",
-    "version": "1.0.0.1",
+    "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "Application Extension - Deployment of custom action",
         "description": "Deploys a custom action with ClientSideComponentId association",
         "id": "50921eb8-374b-4661-b3a5-1210c8728fe7",
-        "version": "1.0.0.1",
+        "version": "1.0.0.2",
         "assets": {
           "elementManifests": [
             "elements.xml",
