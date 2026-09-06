@@ -25,7 +25,6 @@ const Cards: React.FC<ISubjectCardsProps> = ({ listService }) => {
 
   if (loading) return <div className={styles.status}>Loading...</div>;
   if (error) return <div className={styles.status}>{error}</div>;
-  if (!items.length) return <div className={styles.status}>No items found.</div>;
 
   return (
     <div className={styles.wrapper} dir="rtl">
@@ -51,6 +50,14 @@ const Cards: React.FC<ISubjectCardsProps> = ({ listService }) => {
           );
         })}
       </div>
+        <a
+            className={styles.updateButton}
+            href={`${window.location.origin}/sites/portal/Lists/HappyMoments/NewForm.aspx?Source=${encodeURIComponent(
+              `${window.location.origin}/sites/portal`
+            )}`}
+          >
+            עדכנו על שמחה בארגון
+          </a>
     </div>
   );
 };
