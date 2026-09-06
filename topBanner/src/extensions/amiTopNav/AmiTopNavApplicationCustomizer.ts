@@ -35,6 +35,10 @@ export default class AmiTopNavApplicationCustomizer
     this._sp = spfi().using(SPFx(this.context));
 
     this.context.placeholderProvider.changedEvent.add(this, this._renderTopNav);
+    this.context.application.navigatedEvent.add(
+    this,
+    this._handleNavigation
+  );
     void this._renderTopNav();
 
     return Promise.resolve();
@@ -126,17 +130,40 @@ export default class AmiTopNavApplicationCustomizer
     `;
 
 
-    const mainContent = document.querySelector(
-      'section.mainContent'
-    ) as HTMLElement | null;
-
-    if (mainContent) {
-      mainContent.style.marginTop = '-26px';
-    }
+    this._updateMainContentMargin();
     this._hideOriginalSharePointNavigation();
     this._bindMoreMenuEvents();
     this._setupCommandBarShortcut();
   }
+private _handleNavigation(): void {
+  window.setTimeout(() => {
+    this._updateMainContentMargin();
+  }, 0);
+}
+
+private _updateMainContentMargin(): void {
+  const mainContent = document.querySelector(
+    'section.mainContent'
+  ) as HTMLElement | null;
+
+  if (!mainContent) {
+    return;
+  }
+
+  const webPath = this.context.pageContext.web.serverRelativeUrl
+    .replace(/\/$/, '')
+    .toLowerCase();
+
+  const currentPath = window.location.pathname
+    .replace(/\/$/, '')
+    .toLowerCase();
+
+  const isHomePage =
+    currentPath === webPath ||
+    currentPath === `${webPath}/sitepages/home.aspx`;
+
+  mainContent.style.marginTop = isHomePage ? '-26px' : '';
+}
 
 private async _loadOrganizationSiteUrlFromSettingsList(): Promise<string> {
   const fallbackUrl = this.context.pageContext.web.absoluteUrl;
