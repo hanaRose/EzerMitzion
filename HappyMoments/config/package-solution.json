@@ -3,7 +3,7 @@
   "solution": {
     "name": "happy-moments-client-side-solution",
     "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "version": "1.0.0.0",
+    "version": "1.0.0.1",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "happy-moments Feature",
         "description": "The feature that activates elements of the happy-moments solution.",
         "id": "f9e8d7c6-b5a4-3210-fedc-ba9876543210",
-        "version": "1.0.0.0"
+        "version": "1.0.0.1"
       }
     ]
   },
