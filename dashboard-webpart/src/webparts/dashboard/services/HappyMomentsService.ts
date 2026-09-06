@@ -8,6 +8,7 @@ export interface IHappyMomentsItem {
   SubTitle: string;
   EventType: string;
   Order: number;
+  ExpirationDate: string | null;
 }
 
 export class HappyMomentsService {
@@ -72,16 +73,29 @@ export class HappyMomentsService {
   }
 
   async getItems(): Promise<IHappyMomentsItem[]> {
-    const url = `${this.siteUrl}/_api/web/GetList('${LIST_URL}')/items?$select=Id,Title,SubTitle,EventType,Order0&$orderby=Order0%20asc&$top=50`;
+    const url = `${this.siteUrl}/_api/web/GetList('${LIST_URL}')/items?$select=Id,Title,SubTitle,EventType,Order0,ExpirationDate&$orderby=Order0%20asc&$top=50`;
     const res = await this.spHttpClient.get(url, SPHttpClient.configurations.v1);
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.value ?? []).map((item: any) => ({
-      Id: item.Id,
-      Title: item.Title,
-      SubTitle: item.SubTitle,
-      EventType: item.EventType ?? '',
-      Order: item.Order0
-    }));
-  }
+    const now = new Date();
+    const today =
+      `${now.getFullYear()}-` +
+      `${String(now.getMonth() + 1).padStart(2, '0')}-` +
+      `${String(now.getDate()).padStart(2, '0')}`;
+
+    return (data.value ?? [])
+      .map((item: any): IHappyMomentsItem => ({
+        Id: item.Id,
+        Title: item.Title,
+        SubTitle: item.SubTitle,
+        EventType: item.EventType ?? '',
+        Order: item.Order0,
+        ExpirationDate: item.ExpirationDate ?? null
+      }))
+      .filter(
+        (item: IHappyMomentsItem) =>
+          !item.ExpirationDate ||
+          item.ExpirationDate.substring(0, 10) >= today
+      );
+    }
 }
