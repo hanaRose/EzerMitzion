@@ -8,34 +8,21 @@ import {
 import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
 import styles from './FooterApplicationCustomizer.module.scss';
 
-export interface IFooterApplicationCustomizerProperties {
-  listName?: string;
-}
+export interface IFooterApplicationCustomizerProperties {}
 
-interface IFooterLink {
-  Title: string;
-  PageUrl: string;
-  OpenInNewTab: boolean;
-  Order: number;
-  IsActive: boolean;
-}
 
 export default class FooterApplicationCustomizer
   extends BaseApplicationCustomizer<IFooterApplicationCustomizerProperties> {
 
   private _bottomPlaceholder: PlaceholderContent | undefined;
-  private _footerLinks: IFooterLink[] = [];
-  private _listName: string = 'FooterLinks';
   private _observer: MutationObserver | null = null;
   private _footerRendered: any;
 
-  public async onInit(): Promise<void> {
+  public onInit(): Promise<void> {
     console.log('=== FOOTER INIT START ===');
     console.log('innerWidth:', window.innerWidth);
     console.log('userAgent:', navigator.userAgent);
 
-    this._listName = this.properties.listName || 'FooterLinks';
-    await this._ensureListExists();
     this._loadFontAwesome();
 
     const style = document.createElement('style');
@@ -97,88 +84,6 @@ export default class FooterApplicationCustomizer
       fontAwesomeLink.crossOrigin = 'anonymous';
       document.head.appendChild(fontAwesomeLink);
       console.log('Font Awesome loaded');
-    }
-  }
-
-  private async _ensureListExists(): Promise<void> {
-    try {
-      console.log(`Checking if list '${this._listName}' exists...`);
-
-      const response: SPHttpClientResponse = await this.context.spHttpClient.get(
-        `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${this._listName}')`,
-        SPHttpClient.configurations.v1
-      );
-
-      if (response.ok) {
-        console.log(`List '${this._listName}' already exists.`);
-        return;
-      }
-
-      console.log(`List '${this._listName}' not found. Creating...`);
-      await this._createList();
-
-    } catch (error) {
-      console.error('Error checking list existence:', error);
-      await this._createList();
-    }
-  }
-
-  private async _createList(): Promise<void> {
-    console.log(`Creating list '${this._listName}'...`);
-
-    const webUrl = this.context.pageContext.web.absoluteUrl;
-
-    await this.context.spHttpClient.post(
-      `${webUrl}/_api/web/lists`,
-      SPHttpClient.configurations.v1,
-      {
-        headers: { 'Content-Type': 'application/json;odata=nometadata' },
-        body: JSON.stringify({
-          Title: this._listName,
-          BaseTemplate: 100,
-          Description: 'Footer Links data source'
-        })
-      }
-    );
-
-    console.log(`List '${this._listName}' created.`);
-
-    const columns = [
-      { FieldTypeKind: 2, Title: 'PageUrl' },
-      { FieldTypeKind: 8, Title: 'IsActive' },
-      { FieldTypeKind: 8, Title: 'OpenInNewTab' },
-      { FieldTypeKind: 9, Title: 'Order' }
-    ];
-
-    for (const col of columns) {
-      await this.context.spHttpClient.post(
-        `${webUrl}/_api/web/lists/GetByTitle('${this._listName}')/fields`,
-        SPHttpClient.configurations.v1,
-        {
-          headers: { 'Content-Type': 'application/json;odata=nometadata' },
-          body: JSON.stringify(col)
-        }
-      );
-      console.log(`Field '${col.Title}' added.`);
-    }
-  }
-
-  private async _loadFooterLinks(): Promise<void> {
-    try {
-      const response: SPHttpClientResponse = await this.context.spHttpClient.get(
-        `${this.context.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('${this._listName}')/items?$filter=IsActive eq 1&$orderby=Order&$select=Title,PageUrl,OpenInNewTab,Order,IsActive`,
-        SPHttpClient.configurations.v1
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        this._footerLinks = data.value;
-        console.log('Footer links loaded:', this._footerLinks);
-      } else {
-        console.warn('FooterLinks list not found or no active links available');
-      }
-    } catch (error) {
-      console.error('Error loading footer links:', error);
     }
   }
 
@@ -365,22 +270,6 @@ export default class FooterApplicationCustomizer
       button.disabled = false;
       button.textContent = 'שליחה';
     }, 3000);
-  }
-
-  private _generateFooterLinks(): string {
-    if (this._footerLinks.length === 0) {
-      return '';
-    }
-
-    return this._footerLinks.map((link, index) => {
-      const url = link.PageUrl || '#';
-      const target = link.OpenInNewTab ? 'target="_blank" rel="noopener noreferrer"' : '';
-      const separator = index < this._footerLinks.length - 1
-        ? `<span class="${styles.separator}">|</span>`
-        : '';
-
-      return `<a href="${url}" ${target} class="${styles.footerLink}">${link.Title}</a>${separator}`;
-    }).join('');
   }
 
   private _onDispose(): void {
