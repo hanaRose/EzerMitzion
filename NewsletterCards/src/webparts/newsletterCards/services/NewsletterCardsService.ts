@@ -69,9 +69,8 @@ export class NewsletterCardsService {
 
     if (!exists) {
       await this.createList();
+      await this.ensureFields();
     }
-
-    await this.ensureFields();
   }
 
   private async doesListExist(): Promise<boolean> {
