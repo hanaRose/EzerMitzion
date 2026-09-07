@@ -3,7 +3,7 @@
   "solution": {
     "name": "dashboard-webpart-client-side-solution",
     "id": "5742cd2d-45ed-4617-9932-4927a51bb295",
-    "version": "1.0.0.1",
+    "version": "1.0.0.2",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "dashboard-webpart Feature",
         "description": "The feature that activates elements of the dashboard-webpart solution.",
         "id": "7fbaf578-e023-4fed-bb65-d7700d60a288",
-        "version": "1.0.0.1"
+        "version": "1.0.0.2"
       }
     ]
   },
