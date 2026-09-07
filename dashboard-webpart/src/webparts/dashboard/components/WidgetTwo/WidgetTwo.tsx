@@ -53,7 +53,7 @@ const WidgetTwo: React.FC<IWidgetTwoProps> = ({ listService }) => {
       </div>
       <a
       className={styles.updateButton}
-      href={`${window.location.origin}/sites/portal/Lists/HappyMoments/NewForm.aspx?Source=${encodeURIComponent(
+      href={`${window.location.origin}/sites/portal/Lists/HappyMomentsSubmissions/NewForm.aspx?Source=${encodeURIComponent(
         `${window.location.origin}/sites/portal`
       )}`}
     >
