@@ -9,6 +9,7 @@ export interface IHappyMomentsItem {
   EventType: string;
   Order: number;
   ExpirationDate: string | null;
+  AttachmentUrl: string | null;
 }
 
 export class HappyMomentsService {
@@ -73,7 +74,12 @@ export class HappyMomentsService {
   }
 
   async getItems(): Promise<IHappyMomentsItem[]> {
-    const url = `${this.siteUrl}/_api/web/GetList('${LIST_URL}')/items?$select=Id,Title,SubTitle,EventType,Order0,ExpirationDate&$orderby=Order0%20asc&$top=50`;
+    const url =
+  `${this.siteUrl}/_api/web/GetList('${LIST_URL}')/items` +
+  `?$select=Id,Title,SubTitle,EventType,Order0,ExpirationDate,` +
+  `AttachmentFiles/FileName,AttachmentFiles/ServerRelativeUrl` +
+  `&$expand=AttachmentFiles` +
+  `&$orderby=Order0%20asc&$top=50`;
     const res = await this.spHttpClient.get(url, SPHttpClient.configurations.v1);
     if (!res.ok) return [];
     const data = await res.json();
@@ -90,7 +96,11 @@ export class HappyMomentsService {
         SubTitle: item.SubTitle,
         EventType: item.EventType ?? '',
         Order: item.Order0,
-        ExpirationDate: item.ExpirationDate ?? null
+        ExpirationDate: item.ExpirationDate ?? null,
+        AttachmentUrl:
+          item.AttachmentFiles?.length > 0
+            ? item.AttachmentFiles[0].ServerRelativeUrl
+            : null
       }))
       .filter(
         (item: IHappyMomentsItem) =>
