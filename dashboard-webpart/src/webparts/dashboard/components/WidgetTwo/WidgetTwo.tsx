@@ -74,6 +74,11 @@ const WidgetTwo: React.FC<IWidgetTwoProps> = ({ listService }) => {
                 {item.SubTitle && (
                   <span className={styles.cardSubTitle}>{item.SubTitle}</span>
                 )}
+                {item.AttachmentUrl && (
+                  <span className={styles.invitationLink}>
+                    לצפייה בהזמנה
+                  </span>
+                )}
               </div>
               <img src={iconUrl} alt={item.EventType} className={styles.icon} />
             </div>
