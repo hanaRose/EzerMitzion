@@ -37,9 +37,38 @@ const WidgetTwo: React.FC<IWidgetTwoProps> = ({ listService }) => {
       <div className={styles.list}>
         {items.map(item => {
           const iconUrl = eventIconMap[item.EventType] ?? eventIconMap['אחר'];
+          const openAttachment = (): void => {
+            if (!item.AttachmentUrl) {
+              return;
+            }
+
+            window.open(
+              item.AttachmentUrl,
+              '_blank',
+              'noopener,noreferrer'
+            );
+          };
 
           return (
-            <div key={item.Id} className={styles.card}>
+            <div
+              key={item.Id}
+              className={styles.card}
+              role={item.AttachmentUrl ? 'link' : undefined}
+              tabIndex={item.AttachmentUrl ? 0 : undefined}
+              title={item.AttachmentUrl ? 'פתיחת ההזמנה בלשונית חדשה' : undefined}
+              style={item.AttachmentUrl ? { cursor: 'pointer' } : undefined}
+              onClick={item.AttachmentUrl ? openAttachment : undefined}
+              onKeyDown={
+                item.AttachmentUrl
+                  ? (event: React.KeyboardEvent<HTMLDivElement>): void => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openAttachment();
+                      }
+                    }
+                  : undefined
+              }
+            >
               <div className={styles.cardContent}>
                 <span className={styles.cardTitle}>{item.Title}</span>
                 {item.SubTitle && (
@@ -53,9 +82,7 @@ const WidgetTwo: React.FC<IWidgetTwoProps> = ({ listService }) => {
       </div>
       <a
       className={styles.updateButton}
-      href={`${window.location.origin}/sites/portal/Lists/HappyMomentsSubmissions/NewForm.aspx?Source=${encodeURIComponent(
-        `${window.location.origin}/sites/portal`
-      )}`}
+      href="https://ezermizionil.sharepoint.com/:l:/s/portal/JABnni72sK96R4WADmp5YWQIAU3llqafRoCPia66vgOzmPE?nav=NWVlZTRjODItNWM3Ny00ZDdjLTlmZWUtYzlhYjJmNTRhOWI1"
     >
       עדכנו על שמחה בארגון
     </a>
