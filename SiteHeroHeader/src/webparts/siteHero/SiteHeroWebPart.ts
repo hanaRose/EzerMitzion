@@ -27,14 +27,43 @@ export interface ISiteHeroWebPartProps {
 export default class SiteHeroWebPart
   extends BaseClientSideWebPart<ISiteHeroWebPartProps> {
 
-  public render(): void {
-    const mainContent = document.querySelector(
-  "section.mainContent"
-) as HTMLElement | null;
+  private _bodyClassObserver?: MutationObserver;
 
-if (mainContent) {
-  mainContent.style.marginTop = "-26px";
-}
+  private _applyMainContentMargin(): void {
+    const mainContent = document.querySelector(
+      "section.mainContent"
+    ) as HTMLElement | null;
+
+    if (!mainContent) {
+      return;
+    }
+
+    const isCommandBarVisible =
+      document.body.classList.contains("ami-command-bar-visible");
+
+    mainContent.style.marginTop =
+      isCommandBarVisible ? "" : "-26px";
+  }
+
+  private _observeCommandBarVisibility(): void {
+    if (this._bodyClassObserver) {
+      return;
+    }
+
+    this._bodyClassObserver = new MutationObserver(() => {
+      this._applyMainContentMargin();
+    });
+
+    this._bodyClassObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+  }
+
+  public render(): void {
+    this._applyMainContentMargin();
+    this._observeCommandBarVisibility();
+
     const element: React.ReactElement<ISiteHeroProps> =
       React.createElement(SiteHero, {
         heroText: this.properties.heroText,
@@ -46,16 +75,21 @@ if (mainContent) {
   }
 
   protected onDispose(): void {
-  const mainContent = document.querySelector(
-    "section.mainContent"
-  ) as HTMLElement | null;
+    if (this._bodyClassObserver) {
+      this._bodyClassObserver.disconnect();
+      this._bodyClassObserver = undefined;
+    }
 
-  if (mainContent) {
-    mainContent.style.marginTop = "";
+    const mainContent = document.querySelector(
+      "section.mainContent"
+    ) as HTMLElement | null;
+
+    if (mainContent) {
+      mainContent.style.marginTop = "";
+    }
+
+    ReactDom.unmountComponentAtNode(this.domElement);
   }
-
-  ReactDom.unmountComponentAtNode(this.domElement);
-}
 
   protected get dataVersion(): Version {
     return Version.parse("1.0");
@@ -69,12 +103,14 @@ if (mainContent) {
     const input = document.createElement("input");
 
     input.type = "file";
-    input.accept = ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
+    input.accept =
+      ".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp";
 
     input.addEventListener("change", () => {
-      const file = input.files && input.files.length > 0
-        ? input.files[0]
-        : undefined;
+      const file =
+        input.files && input.files.length > 0
+          ? input.files[0]
+          : undefined;
 
       if (!file) {
         return;
@@ -99,27 +135,44 @@ if (mainContent) {
   }
 
   private async _uploadImage(file: File): Promise<string> {
-    const webUrl = this.context.pageContext.web.absoluteUrl;
+    const webUrl =
+      this.context.pageContext.web.absoluteUrl;
 
     const webRelativeUrl =
-      this.context.pageContext.web.serverRelativeUrl.replace(/\/$/, "");
+      this.context.pageContext.web.serverRelativeUrl.replace(
+        /\/$/,
+        ""
+      );
 
-    const folderRelativeUrl = `${webRelativeUrl}/SiteAssets`;
+    const folderRelativeUrl =
+      `${webRelativeUrl}/SiteAssets`;
 
     const extensionIndex = file.name.lastIndexOf(".");
-    const extension = extensionIndex >= 0
-      ? file.name.substring(extensionIndex).toLowerCase()
-      : "";
 
-    const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp"];
+    const extension =
+      extensionIndex >= 0
+        ? file.name.substring(extensionIndex).toLowerCase()
+        : "";
+
+    const allowedExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".webp"
+    ];
 
     if (allowedExtensions.indexOf(extension) === -1) {
       throw new Error("Unsupported image type.");
     }
 
-    const fileName = `site-hero-${Date.now()}${extension}`;
-    const safeFolderUrl = this._escapeODataValue(folderRelativeUrl);
-    const safeFileName = this._escapeODataValue(fileName);
+    const fileName =
+      `site-hero-${Date.now()}${extension}`;
+
+    const safeFolderUrl =
+      this._escapeODataValue(folderRelativeUrl);
+
+    const safeFileName =
+      this._escapeODataValue(fileName);
 
     const uploadUrl =
       `${webUrl}/_api/web/GetFolderByServerRelativeUrl('${safeFolderUrl}')` +
@@ -174,8 +227,10 @@ if (mainContent) {
                   text: this.properties.backgroundImageUrl
                     ? "החלפת תמונת הבאנר"
                     : "בחירת תמונה מהמחשב",
-                  buttonType: PropertyPaneButtonType.Primary,
-                  onClick: this._selectImageFromComputer.bind(this)
+                  buttonType:
+                    PropertyPaneButtonType.Primary,
+                  onClick:
+                    this._selectImageFromComputer.bind(this)
                 })
               ]
             }
